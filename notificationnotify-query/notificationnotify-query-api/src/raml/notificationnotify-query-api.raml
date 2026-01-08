@@ -1,0 +1,61 @@
+#%RAML 0.8
+title: Notification Notify Query API
+baseUri: http://localhost:8080/notificationnotify-query-api/query/api/rest/notificationnotify
+protocols: [ HTTP, HTTPS ]
+
+/notification/{notificationId}:
+  uriParameters:
+     notificationId:
+       type: string
+  get:
+    description: |
+      ...
+      (mapping):
+        responseType: application/vnd.notificationnotify.query.notification+json
+        name: notificationnotify.query.notification
+      ...
+    responses:
+      200:
+        body:
+          application/vnd.notificationnotify.query.notification+json:
+            schema: !include json/schema/notificationnotify.query.notification.json
+            example: !include json/notificationnotify.query.notification.json
+
+
+/notification:
+  get:
+    description: |
+      Returns the list of notifications.
+      ...
+      (mapping):
+        responseType: application/vnd.notificationnotify.query.find-notification+json
+        name: notificationnotify.query.find-notification
+      ...
+    queryParameters:
+      status:
+        type: string
+        required: false
+      createdBefore:
+        type: string
+        required: false
+      createdAfter:
+        type: string
+        required: false
+      sendToAddress:
+        type: string
+        required: false
+      statusCode:
+        type: integer
+        required: false
+      notificationType:
+        type: string
+        required: false
+      letterUrl:
+        type: string
+        required: false
+    responses:
+      200:
+        body:
+          application/vnd.notificationnotify.query.find-notification+json:
+            schema: !include json/schema/notificationnotify.query.notifications.json
+            example: !include json/notificationnotify.query.notifications.json

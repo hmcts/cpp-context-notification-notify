@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://justice.gov.uk/json/schemas/domains/notificationnotify/notificationnotify.events.check-bounced-email-request-failed.json",
+  "type": "object",
+  "properties": {
+    "server": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "server",
+    "reason"
+  ]
+}

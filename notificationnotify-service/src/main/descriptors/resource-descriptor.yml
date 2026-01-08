@@ -1,0 +1,66 @@
+---
+resource_descriptor:
+  spec_version: '1.0.0'
+  version: '${project.version}'
+
+  resources:
+    - name: java:/app/notificationnotify-service/DS.eventstore
+      type: xa-datasource
+      setup:
+        - type: liquibase
+          maven:
+            groupId: uk.gov.justice.services
+            artifactId: event-repository-liquibase
+            type: jar
+            version: '${cpp.framework.version}'
+        - type: liquibase
+          maven:
+            groupId: uk.gov.justice.services
+            artifactId: aggregate-snapshot-repository-liquibase
+            type: jar
+            version: '${cpp.framework.version}'
+
+    - name: java:/app/notificationnotify-service/DS.jobstore
+      type: xa-datasource
+      setup:
+        - type: liquibase
+          maven:
+            groupId: uk.gov.moj.cpp.job
+            artifactId: jobstore-liquibase
+            type: jar
+            version: '${project.version}'
+
+    - name: java:/DS.notificationnotify
+      type: xa-datasource
+      setup:
+        - type: liquibase
+          maven:
+            groupId: uk.gov.justice.services
+            artifactId: event-buffer-liquibase
+            type: jar
+            version: '${cpp.framework.version}'
+        - type: liquibase
+          maven:
+            groupId: uk.gov.moj.cpp.notification.notify
+            artifactId: notificationnotify-viewstore-liquibase
+            type: jar
+            version: '${project.version}'
+
+    - name: notificationnotify.handler.command
+      type: queue
+    - name: notificationnotify.event
+      type: topic
+    - name: public.event
+      type: topic
+
+    # Artefact provides these services
+    id: notificationnotify
+    target: '/notificationnotify-service'
+    map:
+      - '/notificationnotify-command-api'
+      - '/notificationnotify-command-handler'
+      - '/notificationnotify-event-listener'
+      - '/notificationnotify-event-processor'
+      - '/notificationnotify-query-api'
+      - '/notificationnotify-query-view'
+    matcher: '/notificationnotify-[^/]+'

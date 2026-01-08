@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet id="2" author="TechPod"
+               logicalFilePath="002-add-letter-columns-to-notification-table.xml">
+
+        <addColumn tableName="notification">
+            <column name="notification_type" type="TEXT" defaultValue="EMAIL">
+                <constraints nullable="false"/>
+            </column>
+            <column name="letter_url" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <dropNotNullConstraint columnDataType="TEXT" columnName="send_to_address" tableName="notification"/>
+
+        <rollback>
+            <addNotNullConstraint columnDataType="TEXT" columnName="send_to_address" tableName="notification"/>
+
+            <dropColumn tableName="notification">
+                <column name="notification_type"/>
+                <column name="letter_url"/>
+            </dropColumn>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

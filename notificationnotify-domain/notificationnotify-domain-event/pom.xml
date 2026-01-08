@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>notificationnotify-domain</artifactId>
+        <groupId>uk.gov.moj.cpp.notification.notify</groupId>
+        <version>17.0.40-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>notificationnotify-domain-event</artifactId>
+    <version>17.0.40-SNAPSHOT</version>
+
+    <properties>
+        <skip.schema.event.pojo.generation>false</skip.schema.event.pojo.generation>
+        <pojo.generation.source.directory>src/json/schema</pojo.generation.source.directory>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>uk.gov.justice.framework-api</groupId>
+            <artifactId>framework-api-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.moj.cpp.core.domain</groupId>
+            <artifactId>common-core-domain</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>uk.gov.justice.generators</groupId>
+                <artifactId>pojo-generation-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>event-pojo-generation</id>
+                        <configuration>
+                            <generatorProperties implementation="uk.gov.justice.generation.pojo.core.PojoGeneratorProperties">
+                                <typeMappings>
+                                    <typeMapping>
+                                        <name>uuid</name>
+                                        <type>reference</type>
+                                        <implementation>java.util.UUID</implementation>
+                                    </typeMapping>
+                                    <typeMapping>
+                                        <name>date-time</name>
+                                        <type>format</type>
+                                        <implementation>java.time.ZonedDateTime</implementation>
+                                    </typeMapping>
+                                </typeMappings>
+                            </generatorProperties>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>uk.gov.moj.cpp.core.domain</groupId>
+                        <artifactId>common-core-domain</artifactId>
+                        <version>${coredomain.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+</project>

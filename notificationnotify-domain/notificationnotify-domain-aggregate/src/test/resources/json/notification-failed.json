@@ -1,0 +1,10 @@
+{
+  "_metadata": {
+    "name": "notificationnotify.events.notification-failed"
+  },
+  "notificationId": "5c5a1d30-0414-11e7-93ae-92361f002671",
+  "failedTime": "2016-07-11T12:55:28.180Z",
+  "errorMessage": "Can\u2019t send to this recipient using a team-only API key",
+  "statusCode": 400,
+  "clientContext": "correspondence"
+}

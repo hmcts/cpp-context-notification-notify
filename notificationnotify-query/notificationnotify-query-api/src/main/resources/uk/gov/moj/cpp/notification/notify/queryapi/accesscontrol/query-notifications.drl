@@ -1,0 +1,24 @@
+package uk.gov.moj.cpp.notification.notify.queryapi.accesscontrol;
+
+import uk.gov.moj.cpp.accesscontrol.drools.Outcome;
+import uk.gov.moj.cpp.accesscontrol.drools.Action;
+
+global uk.gov.moj.cpp.accesscontrol.common.providers.UserAndGroupProvider userAndGroupProvider;
+
+rule "Notification Notify - Query - API - Rule for Querying Notifcation by ID"
+  when
+    $outcome: Outcome();
+    $action: Action(name == "notificationnotify.query.notification");
+    eval(userAndGroupProvider.isSystemUser($action))
+  then
+    $outcome.setSuccess(true);
+end
+
+rule "Notification Notify - Query - API - Rule for Querying Notifications By search terms"
+  when
+    $outcome: Outcome();
+    $action: Action(name == "notificationnotify.query.find-notification");
+    eval(userAndGroupProvider.isSystemUser($action))
+  then
+    $outcome.setSuccess(true);
+end

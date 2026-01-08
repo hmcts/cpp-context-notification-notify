@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://moj.gov.uk/cpp/json/schemas/notificationnotify/events/notification-queued.json",
+  "type": "object",
+  "properties": {
+    "notificationId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "templateId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "sendToAddress": {
+      "type": "string"
+    },
+    "replyToAddress": {
+      "type": "string",
+      "format": "email"
+    },
+    "replyToAddressId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "personalisation": {
+      "type": "object",
+      "properties": {
+      },
+      "additionalProperties": true
+    },
+    "materialUrl": {
+      "type": "string"
+    },
+    "fileId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "clientContext": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "notificationId",
+    "templateId",
+    "sendToAddress"
+  ]
+}

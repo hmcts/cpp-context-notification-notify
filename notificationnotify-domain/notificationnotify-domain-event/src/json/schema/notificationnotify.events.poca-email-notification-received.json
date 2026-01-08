@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://justice.gov.uk/json/schemas/domains/notificationnotify/notificationnotify.events.poca-email-notification-received.json",
+  "type": "object",
+  "properties": {
+    "pocaFileId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "pocaEmail": {
+      "type": "string"
+    },
+    "pocaMailId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "emailSubject": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "pocaFileId",
+    "pocaEmail",
+    "pocaMailId"
+  ],
+  "additionalProperties": false
+}
