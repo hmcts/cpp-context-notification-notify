@@ -5,11 +5,11 @@
     <parent>
         <artifactId>notificationnotify-azure</artifactId>
         <groupId>uk.gov.moj.cpp.notification.notify</groupId>
-        <version>17.0.40</version>
+        <version>17.0.41-SNAPSHOT</version>
     </parent>
 
     <artifactId>notification-notify-storage-accounts</artifactId>
-    <version>17.0.40</version>
+    <version>17.0.41-SNAPSHOT</version>
 
     <name>Azure Storage Account Resources</name>
 
