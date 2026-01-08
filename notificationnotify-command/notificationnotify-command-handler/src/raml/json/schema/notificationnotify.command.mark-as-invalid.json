@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://justice.gov.uk/json/schemas/domains/notificationnotify/notificationnotify.command.mark-as-invalid.json",
+  "type": "object",
+  "properties": {
+    "notificationId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "errorMessage": {
+      "type": "string"
+    },
+    "failedTime": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "notificationId",
+    "errorMessage",
+    "failedTime"
+  ]
+}

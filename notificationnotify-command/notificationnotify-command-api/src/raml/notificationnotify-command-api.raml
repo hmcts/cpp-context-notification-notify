@@ -1,0 +1,30 @@
+#%RAML 0.8
+title: Notify Command API
+protocols: [ HTTP ]
+
+baseUri: http://localhost:8080/notificationnotify-command-api/command/api/rest/notificationnotify
+
+/notifications/{notificationId}:
+  post:
+    description: |
+      ...
+      (mapping):
+          requestType: application/vnd.notificationnotify.email+json
+          name: notificationnotify.send-email-notification
+      (mapping):
+          requestType: application/vnd.notificationnotify.letter+json
+          name: notificationnotify.send-letter-notification
+      ...
+    body:
+        application/vnd.notificationnotify.email+json:
+           example:
+            !include json/notificationnotify.email.json
+           schema:
+            !include json/schema/notificationnotify.email.json
+        application/vnd.notificationnotify.letter+json:
+           example:
+            !include json/notificationnotify.letter.json
+           schema:
+            !include json/schema/notificationnotify.letter.json
+
+

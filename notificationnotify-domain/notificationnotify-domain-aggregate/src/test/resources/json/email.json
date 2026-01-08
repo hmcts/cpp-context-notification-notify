@@ -1,0 +1,14 @@
+{
+  "notificationId": "5c5a1d30-0414-11e7-93ae-92361f002671",
+  "templateId": "384416a9-ef20-4500-a9c1-f64b87b424a0",
+  "sendToAddress": "fred@bloggs.com",
+  "replyToAddress": "noreply@moj.gov.uk",
+  "replyToAddressId": "9f476d4f-4069-444a-a511-905dcbb66910",
+  "personalisation": {
+    "referenceNumber": "13566",
+    "lastName": "Bloggs",
+    "firstName": "Fred",
+    "subjectLine":"Subject Line"
+  },
+  "clientContext": "correspondence"
+}

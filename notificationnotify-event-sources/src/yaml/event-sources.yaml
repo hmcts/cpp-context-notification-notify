@@ -1,0 +1,11 @@
+event_sources:
+  - name: notificationnotify.event.source
+    is_default: true
+    location:
+      jms_uri:  jms:topic:notificationnotify.event
+      rest_uri: http://localhost:8080/notificationnotify-service/event-source-api/rest
+      data_source: java:/app/notificationnotify-service/DS.eventstore
+
+  - name: public.event.source
+    location:
+      jms_uri:  jms:topic:public.event

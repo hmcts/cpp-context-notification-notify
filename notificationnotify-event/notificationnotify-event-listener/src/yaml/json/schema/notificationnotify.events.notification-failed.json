@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://moj.gov.uk/cpp/json/schemas/notificationnotify/events/notification-failed.json",
+  "type": "object",
+  "properties": {
+    "notificationId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "failedTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "errorMessage": {
+      "type": "string"
+    },
+    "statusCode": {
+      "type": "integer"
+    },
+    "clientContext": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "notificationId",
+    "failedTime",
+    "errorMessage"
+  ]
+}

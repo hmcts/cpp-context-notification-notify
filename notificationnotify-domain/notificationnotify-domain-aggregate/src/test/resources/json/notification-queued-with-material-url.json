@@ -1,0 +1,19 @@
+{
+  "_metadata": {
+    "name": "notificationnotify.events.notification-queued"
+  },
+  "notificationId": "5c5a1d30-0414-11e7-93ae-92361f002671",
+  "templateId": "384416a9-ef20-4500-a9c1-f64b87b424a0",
+  "sendToAddress": "fred@bloggs.com",
+  "replyToAddress": "noreply@moj.gov.uk",
+  "replyToAddressId": "9f476d4f-4069-444a-a511-905dcbb66910",
+  "materialUrl": "http://localhost:8080/material-query-api/query/api/rest/material/b439f425-e894-4a2c-aeb8-ed172565720f",
+  "personalisation": {
+    "firstName": "Fred",
+    "lastName": "Bloggs",
+    "referenceNumber": "13566",
+    "subjectLine":"Subject Line"
+  },
+  "clientContext": "correspondence"
+
+}

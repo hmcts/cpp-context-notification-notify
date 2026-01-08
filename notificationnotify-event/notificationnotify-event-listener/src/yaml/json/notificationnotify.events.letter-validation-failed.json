@@ -1,0 +1,7 @@
+{
+  "notificationId": "684416a9-ef20-4500-a9c1-f64b87b424a0",
+  "letterUrl": "http://localhost:8080/some-context/somewhere/letter/90fe9fe3-0e03-40c3-8298-ec6f55323582",
+  "attemptedTime": "2016-07-11T12:55:28.180Z",
+  "errorMessage": "Can't send to this recipient using a team-only API key",
+  "statusCode": 400
+}

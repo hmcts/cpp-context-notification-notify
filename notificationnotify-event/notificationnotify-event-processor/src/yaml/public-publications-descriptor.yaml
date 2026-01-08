@@ -1,0 +1,16 @@
+subscriptions_descriptor:
+  spec_version: 1.0.0
+  service: notificationnotify
+  service_component: EVENT_PROCESSOR
+  subscriptions:
+    - name: public event processor subscription
+      events:
+        - name: public.notificationnotify.events.notification-failed
+          schema_uri: http://moj.gov.uk/cpp/json/schemas/notificationnotify/events/public/notification-failed.json
+        - name: public.notificationnotify.events.notification-sent
+          schema_uri: http://moj.gov.uk/cpp/json/schemas/notificationnotify/events/public/notification-sent.json
+        - name: public.notificationnotify.events.email-notification-bounced
+          schema_uri: http://moj.gov.uk/cpp/json/schemas/notificationnotify/events/public/notification-bounced.json
+        - name: public.notificationnotify.events.poca-email-notification-received
+          schema_uri: http://moj.gov.uk/cpp/json/schemas/notificationnotify/events/public/poca-email-notification-received.json
+      event_source_name: public.event.source

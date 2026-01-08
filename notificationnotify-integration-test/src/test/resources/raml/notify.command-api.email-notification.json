@@ -1,0 +1,11 @@
+{
+  "templateId": "384416a9-ef20-4500-a9c1-f64b87b424a0",
+  "sendToAddress": "fred@bloggs.com",
+  "replyToAddress": "noreply@moj.gov.uk",
+  "replyToAddressId": "9f476d4f-4069-444a-a511-905dcbb66910",
+  "personalisation": {
+    "firstName": "Fred",
+    "lastName": "Bloggs",
+    "referenceNumber": "13566"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "notifications": [
+    {
+      "notificationId": "3a25369d-1d8c-4934-a5a9-9bcd57331a41",
+      "status": "queued",
+      "dateCreated": "2016-09-09T08:31:40Z",
+      "lastUpdated": "2016-09-09T08:31:40Z",
+      "statusCode": 202,
+      "materialUrl":"http://localhost:materialUrl"
+    }
+  ]
+}

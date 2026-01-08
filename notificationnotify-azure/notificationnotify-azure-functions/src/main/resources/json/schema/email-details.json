@@ -1,0 +1,43 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "additionalProperties": false,
+    "id": "http://justice.gov.uk/json/schemas/domains/notificationnotify/paas/email-details.json",
+    "properties": {
+        "attachment": {
+            "properties": {
+                "content": {
+                    "contentEncoding": "base64",
+                    "type": "string"
+                },
+                "filename": {
+                    "type": "string"
+                }
+            }
+        },
+        "emailAddress": {
+            "type": "string"
+        },
+        "personalisation": {
+            "additionalProperties": true,
+            "properties": {},
+            "type": "object"
+        },
+        "reference": {
+            "type": "string"
+        },
+        "replyToAddressId": {
+            "pattern": "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$",
+            "type": "string"
+        },
+        "templateId": {
+            "pattern": "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$",
+            "type": "string"
+        }
+    },
+    "required": [
+        "templateId",
+        "emailAddress"
+    ],
+    "type": "object"
+}
+

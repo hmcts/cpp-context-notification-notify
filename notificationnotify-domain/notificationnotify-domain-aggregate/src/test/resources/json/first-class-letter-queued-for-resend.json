@@ -1,0 +1,9 @@
+{
+  "_metadata": {
+    "name": "notificationnotify.events.letter-queued-for-resend"
+  },
+  "letterUrl": "http://localhost:8080/somefileurl",
+  "notificationId": "5c5a1d30-0414-11e7-93ae-92361f002671",
+  "reason": "Validation failed for '5c5a1d30-0414-11e7-93ae-92361f002671' automatic resend attempt, remaining = 5",
+  "postage": "first"
+}
