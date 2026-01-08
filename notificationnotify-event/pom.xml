@@ -5,7 +5,7 @@
     <parent>
         <artifactId>notificationnotify</artifactId>
         <groupId>uk.gov.moj.cpp.notification.notify</groupId>
-        <version>17.0.40-SNAPSHOT</version>
+        <version>17.0.41-SNAPSHOT</version>
     </parent>
 
     <artifactId>notificationnotify-event</artifactId>
