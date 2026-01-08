@@ -1,0 +1,50 @@
+{
+  "events": [
+    {
+      "eventName": "notificationnotify.events.notification-queued",
+      "fieldsToBeIgnored": []
+    },
+    {
+      "eventName": "notificationnotify.events.notification-attempted",
+      "fieldsToBeIgnored": [
+        "$.attemptedTime",
+        "$.statusCode"
+      ]
+    },
+    {
+      "eventName": "notificationnotify.events.notification-sent",
+      "fieldsToBeIgnored": [
+        "$.sentTime"
+      ]
+    },
+    {
+      "eventName": "notificationnotify.events.notification-failed",
+      "fieldsToBeIgnored": [
+        "$.failedTime",
+        "$.statusCode"
+      ]
+    },
+    {
+      "eventName": "notificationnotify.events.letter-queued",
+      "fieldsToBeIgnored": []
+    },
+    {
+      "eventName": "notificationnotify.events.letter-queued-for-resend",
+      "fieldsToBeIgnored": []
+    },
+    {
+      "eventName": "notificationnotify.events.letter-url-failed",
+      "fieldsToBeIgnored": [
+        "$.failedTime",
+        "$.statusCode"
+      ]
+    },
+    {
+      "eventName": "notificationnotify.events.letter-validation-failed",
+      "fieldsToBeIgnored": [
+        "$.failedTime",
+        "$.statusCode"
+      ]
+    }
+  ]
+}

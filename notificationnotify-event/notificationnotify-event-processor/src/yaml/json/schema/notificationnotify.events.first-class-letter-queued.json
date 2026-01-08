@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://moj.gov.uk/cpp/json/schemas/notificationnotify/events/first-class-letter-queued.json",
+  "type": "object",
+  "properties": {
+    "notificationId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "letterUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "clientContext": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "notificationId",
+    "letterUrl"
+  ]
+}
+

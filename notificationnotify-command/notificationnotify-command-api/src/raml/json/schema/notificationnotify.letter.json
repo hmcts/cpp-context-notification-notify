@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://justice.gov.uk/json/schemas/domains/notificationnotify/notificationnotify.send-letter-notification.json",
+  "type": "object",
+  "properties": {
+    "letterUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "postage" : {
+      "type": "string"
+    },
+    "clientContext" : {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "letterUrl"
+  ]
+}

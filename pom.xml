@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>uk.gov.moj.cpp.common</groupId>
+        <artifactId>service-parent-pom</artifactId>
+        <version>17.103.3</version>
+    </parent>
+
+    <groupId>uk.gov.moj.cpp.notification.notify</groupId>
+    <artifactId>notificationnotify</artifactId>
+    <version>17.0.41-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+
+    <name>notificationnotify</name>
+
+    <properties>
+        <notification-client.version>3.17.3-RELEASE</notification-client.version>
+        <coredomain.version>17.103.10</coredomain.version>
+        <stream-transformation-tool-api.version>7.0.0</stream-transformation-tool-api.version>
+
+        <maven.cucumber.reporting.plugin.version>2.0.0</maven.cucumber.reporting.plugin.version>
+        <azure-functions-maven-plugin.version>1.12.0</azure-functions-maven-plugin.version>
+        <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
+        <maven-assembly-plugin.version>3.2.0</maven-assembly-plugin.version>
+        <azure.storage.version>8.4.0</azure.storage.version>
+        <jsoup.version>1.18.2</jsoup.version>
+        <jgitflow.maven.developBranchName>main</jgitflow.maven.developBranchName>
+        <h2.version>1.4.196</h2.version>
+    </properties>
+
+    <modules>
+        <module>notificationnotify-command</module>
+        <module>notificationnotify-event</module>
+        <module>notificationnotify-service</module>
+        <module>notificationnotify-query</module>
+        <module>notificationnotify-viewstore</module>
+        <module>notificationnotify-domain</module>
+        <module>notificationnotify-azure</module>
+        <module>notificationnotify-integration-test</module>
+        <module>notificationnotify-event-sources</module>
+        <module>notificationnotify-healthchecks</module>
+    </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <archiveClasses>true</archiveClasses>
+                    <attachClasses>true</attachClasses>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>uk.gov.service.notify</groupId>
+                <artifactId>notifications-java-client</artifactId>
+                <version>${notification-client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>uk.gov.moj.cpp.core.domain</groupId>
+                <artifactId>common-core-domain</artifactId>
+                <version>${coredomain.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>uk.gov.justice</groupId>
+                <artifactId>stream-transformation-tool-anonymise</artifactId>
+                <version>${stream-transformation-tool-api.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>

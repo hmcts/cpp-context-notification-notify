@@ -1,0 +1,19 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "additionalProperties": false,
+    "id": "http://justice.gov.uk/json/schemas/domains/notificationnotify/paas/outlook-settings.json",
+    "properties": {
+      "retryDefinitions": {
+        "type": "array",
+        "items": {
+          "retryNumber" : "int",
+          "duration" : "int"
+        }
+      }
+    },
+    "required": [
+      "retryDefinitions"
+    ],
+    "type": "object"
+}
+

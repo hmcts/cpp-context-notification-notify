@@ -1,0 +1,16 @@
+package uk.gov.moj.cpp.notification.notify.command.api.accesscontrol;
+
+import uk.gov.moj.cpp.accesscontrol.drools.Outcome;
+import uk.gov.moj.cpp.accesscontrol.drools.Action;
+import uk.gov.moj.cpp.notification.notify.command.api.accesscontrol.RuleConstants;
+
+global uk.gov.moj.cpp.accesscontrol.common.providers.UserAndGroupProvider userAndGroupProvider;
+
+rule "Command - Rule for Sending Letter"
+  when
+    $outcome: Outcome();
+    $action: Action(name == "notificationnotify.send-letter-notification");
+    eval(userAndGroupProvider.isMemberOfAnyOfTheSuppliedGroups($action, RuleConstants.getSendLetterActionGroups()));
+  then
+    $outcome.setSuccess(true);
+end

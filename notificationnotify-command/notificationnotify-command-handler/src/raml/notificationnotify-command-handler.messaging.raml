@@ -1,0 +1,47 @@
+#%RAML 0.8
+title: Notify Handler
+baseUri: message://command/handler/message/notificationnotify
+version: v1
+
+/notificationnotify.handler.command:
+  post:
+    body:
+      application/vnd.notificationnotify.command.send-email-notification+json:
+        schema: !include json/schema/notificationnotify.command.send-email-notification.json
+        example: !include json/notificationnotify.command.send-email-notification.json
+
+      application/vnd.notificationnotify.command.mark-as-sent+json:
+        schema: !include json/schema/notificationnotify.command.mark-as-sent.json
+        example: !include json/notificationnotify.command.mark-as-sent.json
+
+      application/vnd.notificationnotify.command.mark-as-failed+json:
+        schema: !include json/schema/notificationnotify.command.mark-as-failed.json
+        example: !include json/notificationnotify.command.mark-as-failed.json
+
+      application/vnd.notificationnotify.command.mark-as-attempted+json:
+        schema: !include json/schema/notificationnotify.command.mark-as-attempted.json
+        example: !include json/notificationnotify.command.mark-as-attempted.json
+
+      application/vnd.notificationnotify.command.send-letter-notification+json:
+        schema: !include json/schema/notificationnotify.command.send-letter-notification.json
+        example: !include json/notificationnotify.command.send-letter-notification.json
+
+      application/vnd.notificationnotify.command.mark-as-invalid+json:
+        schema: !include json/schema/notificationnotify.command.mark-as-invalid.json
+        example: !include json/notificationnotify.command.mark-as-invalid.json
+
+      application/vnd.notificationnotify.command.process-bounced-email+json:
+        schema: !include json/schema/notificationnotify.command.process-bounced-email.json
+        example: !include json/notificationnotify.command.process-bounced-email.json
+
+      application/vnd.notificationnotify.command.record-check-bounced-email-request-failed+json:
+        schema: !include json/schema/notificationnotify.command.record-check-bounced-email-request-failed.json
+        example: !include json/notificationnotify.command.record-check-bounced-email-request-failed.json
+
+      application/vnd.notificationnotify.command.process-poca-email+json:
+        schema: !include json/schema/notificationnotify.command.process-poca-email.json
+        example: !include json/notificationnotify.command.process-poca-email.json
+
+      application/vnd.notificationnotify.command.record-check-poca-email-request-failed+json:
+        schema: !include json/schema/notificationnotify.command.record-check-poca-email-request-failed.json
+        example: !include json/notificationnotify.command.record-check-poca-email-request-failed.json
