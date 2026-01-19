@@ -5,7 +5,7 @@
     <parent>
         <artifactId>notificationnotify-query</artifactId>
         <groupId>uk.gov.moj.cpp.notification.notify</groupId>
-        <version>17.104.41-PEG-2792-SNAPSHOT</version>
+        <version>17.104.42-PEG-2792-SNAPSHOT</version>
     </parent>
 
     <artifactId>notificationnotify-query-view</artifactId>
