@@ -3,12 +3,12 @@
     <parent>
         <artifactId>notificationnotify-domain</artifactId>
         <groupId>uk.gov.moj.cpp.notification.notify</groupId>
-        <version>17.0.41-SNAPSHOT</version>
+        <version>17.0.41-PEG-2792-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>notificationnotify-domain-event</artifactId>
-    <version>17.0.41-SNAPSHOT</version>
+    <version>17.0.41-PEG-2792-SNAPSHOT</version>
 
     <properties>
         <skip.schema.event.pojo.generation>false</skip.schema.event.pojo.generation>

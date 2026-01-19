@@ -1,6 +1,6 @@
 package uk.gov.moj.cpp.notification.notify.query.view;
 
-import static javax.json.Json.createArrayBuilder;
+import static uk.gov.justice.services.messaging.JsonObjects.createArrayBuilder;
 
 import uk.gov.justice.services.common.converter.ObjectToJsonObjectConverter;
 import uk.gov.justice.services.common.converter.ZonedDateTimes;
@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.json.Json;
+import uk.gov.justice.services.messaging.JsonObjects;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 
@@ -61,7 +61,7 @@ public class NotificationQueryView {
                 responseBuilder.add(converter.convert(notification));
             }
 
-            final JsonObject responsePayload = Json.createObjectBuilder().add("notifications", responseBuilder).build();
+            final JsonObject responsePayload = JsonObjects.createObjectBuilder().add("notifications", responseBuilder).build();
             return notificationsResponseFor(query, responsePayload);
         } else {
             return notificationsResponseFor(query, null);

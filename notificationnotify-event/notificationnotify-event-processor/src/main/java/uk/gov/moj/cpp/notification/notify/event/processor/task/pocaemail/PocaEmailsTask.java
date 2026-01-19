@@ -30,7 +30,7 @@ import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.json.Json;
+import uk.gov.justice.services.messaging.JsonObjects;
 import javax.json.JsonObject;
 import javax.mail.MessagingException;
 
@@ -106,7 +106,7 @@ public class PocaEmailsTask implements ExecutableTask {
         final int maxRetries = 3;
         UUID pocaFileId;
 
-        final JsonObject metadata = Json.createObjectBuilder()
+        final JsonObject metadata = JsonObjects.createObjectBuilder()
                 .add("fileName", emailDetail.getFileName())
                 .add("createdAt", ZonedDateTimes.toString(new UtcClock().now()))
                 .add("mediaType", POCA_EMAIL_CONTENT_TYPE)
