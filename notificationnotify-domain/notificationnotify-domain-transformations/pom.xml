@@ -4,7 +4,7 @@
     <parent>
         <artifactId>notificationnotify-domain</artifactId>
         <groupId>uk.gov.moj.cpp.notification.notify</groupId>
-        <version>17.0.41-PEG-2792-SNAPSHOT</version>
+        <version>17.104.41-PEG-2792-SNAPSHOT</version>
     </parent>
 
     <artifactId>notificationnotify-domain-transformations</artifactId>
