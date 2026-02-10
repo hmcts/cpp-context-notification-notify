@@ -40,7 +40,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-import javax.json.Json;
+import uk.gov.justice.services.messaging.JsonObjects;
 import javax.json.JsonObject;
 
 import org.apache.commons.codec.binary.Base64;
@@ -94,7 +94,7 @@ public class NotificationStubUtils {
                                                                      final String attachmentContent,
                                                                      final Boolean isCSV) {
 
-        final JsonObject attachmentPersonalisation = Json.createObjectBuilder().add("file", convertToBase64String(attachmentContent)).add("is_csv", isCSV).build();
+        final JsonObject attachmentPersonalisation = JsonObjects.createObjectBuilder().add("file", convertToBase64String(attachmentContent)).add("is_csv", isCSV).build();
 
         sendEmailStub()
                 .withReference(cppNotificationId)
@@ -118,7 +118,7 @@ public class NotificationStubUtils {
                                                                      final String attachmentContent,
                                                                      final Boolean isCSV) {
 
-        final JsonObject attachmentPersonalisation = Json.createObjectBuilder()
+        final JsonObject attachmentPersonalisation = JsonObjects.createObjectBuilder()
                 .add("file", attachmentContent).add("is_csv", isCSV).build();
 
         sendEmailStub()
@@ -482,7 +482,7 @@ public class NotificationStubUtils {
 
     public static void stubEnableAllCapabilities() {
         String stubUrl = format("/authorisation-service-server/rest/capabilities/%s", ".*");
-        String responsePayload = Json.createObjectBuilder().add("enabled", true).build().toString();
+        String responsePayload = JsonObjects.createObjectBuilder().add("enabled", true).build().toString();
         InternalEndpointMockUtils.stubPingFor("authorisation-service-server");
 
         stubFor(get(urlMatching(stubUrl))

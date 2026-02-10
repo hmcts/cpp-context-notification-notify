@@ -9,7 +9,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static javax.json.Json.createObjectBuilder;
+import static uk.gov.justice.services.messaging.JsonObjects.createObjectBuilder;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static uk.gov.moj.notification.notify.it.util.PayloadGeneratorUtil.getPersonalisationJsonObject;
 
