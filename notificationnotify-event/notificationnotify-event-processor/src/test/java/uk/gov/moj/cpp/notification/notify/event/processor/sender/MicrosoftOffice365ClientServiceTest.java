@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.json.Json;
+import uk.gov.justice.services.messaging.JsonObjects;
 import javax.json.JsonObject;
 
 import org.jose4j.base64url.Base64;
@@ -49,7 +49,7 @@ public class MicrosoftOffice365ClientServiceTest {
         final String materialUrl = "/material/id";
         final Map<String, ?> personalisation = new HashMap<>();
 
-        final JsonObject responseObject  = Json.createObjectBuilder()
+        final JsonObject responseObject  = JsonObjects.createObjectBuilder()
                 .add("reference", notificationId.toString())
                 .build();
         final byte[] bytes = "content".getBytes();

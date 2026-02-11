@@ -1,7 +1,7 @@
 package uk.gov.moj.notification.notify.it.util;
 
 import static java.util.UUID.fromString;
-import static javax.json.Json.createObjectBuilder;
+import static uk.gov.justice.services.messaging.JsonObjects.createObjectBuilder;
 import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.setField;
 import static uk.gov.moj.notification.notify.it.stub.NotificationStubUtils.CLIENT_CONTEXT;
 
