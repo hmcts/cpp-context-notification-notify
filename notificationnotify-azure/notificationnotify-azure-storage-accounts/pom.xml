@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>notification-notify-storage-accounts</artifactId>
-    <version>17.0.41-SNAPSHOT</version>
+    <version>17.104.43-PEG-2848-SNAPSHOT</version>
 
     <name>Azure Storage Account Resources</name>
 

@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>notificationnotify-azure-functions</artifactId>
-    <version>17.0.41-SNAPSHOT</version>
+    <version>17.104.43-PEG-2848-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Azure Java Functions</name>
