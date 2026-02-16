@@ -2,8 +2,14 @@ package uk.gov.moj.notification.notify.it;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.configureFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.reset;
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.isJson;
 import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.Matchers.hasEntry;
 import static uk.gov.justice.services.messaging.JsonObjects.createObjectBuilder;
 import static javax.ws.rs.core.Response.Status.ACCEPTED;
 import static javax.ws.rs.core.Response.Status.OK;
@@ -11,10 +17,14 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+
+import org.hamcrest.Matcher;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.justice.services.common.http.HeaderConstants.USER_ID;
 import static uk.gov.justice.services.test.utils.common.host.TestHostProvider.getHost;
-import static uk.gov.justice.services.test.utils.core.http.PollingRequestParamsBuilder.pollingRequestParams;
+import static uk.gov.justice.services.test.utils.core.http.RequestParamsBuilder.requestParams;
+import static uk.gov.justice.services.test.utils.core.matchers.ResponsePayloadMatcher.payload;
+import static uk.gov.justice.services.test.utils.core.matchers.ResponseStatusMatcher.status;
 import static uk.gov.moj.notification.notify.it.stub.NotificationStubUtils.DOCUMENT_DOWNLOAD_URL;
 import static uk.gov.moj.notification.notify.it.stub.NotificationStubUtils.stubDocumentDownload;
 import static uk.gov.moj.notification.notify.it.stub.NotificationStubUtils.stubEnableAllCapabilities;
@@ -31,17 +41,17 @@ import static uk.gov.moj.notification.notify.it.util.ResourceLoader.getFileConte
 
 import uk.gov.justice.services.common.converter.ZonedDateTimes;
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.test.utils.core.http.PollingRequestParams;
-import uk.gov.justice.services.test.utils.core.http.PollingRestClient;
+import uk.gov.justice.services.test.utils.core.http.FibonacciPollWithStartAndMax;
+import uk.gov.justice.services.test.utils.core.http.RestPoller;
 import uk.gov.justice.services.test.utils.core.rest.RestClient;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -77,7 +87,7 @@ public class QueryIT {
     private static final String STATUS_FAILED = "FAILED";
     private static final String QUERY_NOTIFICATION_URL = format("http://%s:%s/notificationnotify-query-api/query/api/rest/notificationnotify/", HOST, PORT);
     private static final String QUERY_NOTIFICATIONS_URL = QUERY_NOTIFICATION_URL + "notification?status=%s&createdAfter=%s&sendToAddress=%s";
-    private final PollingRestClient pollingRestClient = new PollingRestClient();
+
 
     @BeforeAll
     public static void beforeAll() {
@@ -103,7 +113,7 @@ public class QueryIT {
         pollForResponseAfterSentNotificationProcessed(
                 url,
                 NOTIFICATION_BY_ID_CONTENT_TYPE,
-                json -> json.contains(notificationId.toString()));
+                containsString(notificationId.toString()));
 
         final Response queryResponse = restClient.query(url, NOTIFICATION_BY_ID_CONTENT_TYPE, headers);
 
@@ -127,7 +137,7 @@ public class QueryIT {
         sendAndAssertEmailNotification(cppNotificationId);
 
         final String url = format(QUERY_NOTIFICATION_URL + "notification?status=%s", STATUS_SENT);
-        final Predicate<String> jsonContainsNotification = jsonContainsNotificationWith(cppNotificationId, STATUS_SENT);
+        final Matcher<String> jsonContainsNotification = jsonContainsNotificationWith(cppNotificationId, STATUS_SENT);
 
         pollForResponseAfterSentNotificationProcessed(url, NOTIFICATIONS_CONTENT_TYPE, jsonContainsNotification);
 
@@ -162,7 +172,7 @@ public class QueryIT {
         sendAndAssertLetterNotification(cppNotificationId);
 
         final String url = format(QUERY_NOTIFICATION_URL + "notification?status=%s", STATUS_SENT);
-        final Predicate<String> jsonContainsNotification = jsonContainsNotificationWith(cppNotificationId, STATUS_SENT);
+        final Matcher<String> jsonContainsNotification = jsonContainsNotificationWith(cppNotificationId, STATUS_SENT);
 
         pollForResponseAfterSentNotificationProcessed(url, NOTIFICATIONS_CONTENT_TYPE, jsonContainsNotification);
 
@@ -195,7 +205,7 @@ public class QueryIT {
         sendAndAssertLetterNotification(cppNotificationId);
 
         final String url = format(QUERY_NOTIFICATION_URL + "notification?status=%s", STATUS_FAILED);
-        final Predicate<String> jsonContainsNotification = jsonContainsNotificationWith(cppNotificationId, STATUS_FAILED);
+        final Matcher<String> jsonContainsNotification = jsonContainsNotificationWith(cppNotificationId, STATUS_FAILED);
 
         pollForResponseAfterSentNotificationProcessed(url, NOTIFICATIONS_CONTENT_TYPE, jsonContainsNotification);
 
@@ -232,7 +242,7 @@ public class QueryIT {
         sendAndAssertEmailNotification(cppNotificationId);
 
         final String url = format(QUERY_NOTIFICATIONS_URL, STATUS_FAILED, createdAfter, EMAIL_ADDRESS);
-        final Predicate<String> jsonContainsNotification = jsonContainsNotificationWith(cppNotificationId, STATUS_FAILED);
+        final Matcher<String> jsonContainsNotification = jsonContainsNotificationWith(cppNotificationId, STATUS_FAILED);
 
         pollForResponseAfterSentNotificationProcessed(url, NOTIFICATIONS_CONTENT_TYPE, jsonContainsNotification);
 
@@ -267,7 +277,7 @@ public class QueryIT {
         sendAndAssertLetterNotification(cppNotificationId);
 
         final String url = format(QUERY_NOTIFICATION_URL + "notification?notificationType=%s", NOTIFICATION_TYPE_LETTER);
-        final Predicate<String> jsonContainsNotification = jsonContainsNotificationWith(cppNotificationId, STATUS_SENT);
+        final Matcher<String> jsonContainsNotification = jsonContainsNotificationWith(cppNotificationId, STATUS_SENT);
 
         pollForResponseAfterSentNotificationProcessed(url, NOTIFICATIONS_CONTENT_TYPE, jsonContainsNotification);
 
@@ -303,7 +313,7 @@ public class QueryIT {
         sendAndAssertLetterNotification(cppNotificationId);
 
         final String url = format(QUERY_NOTIFICATION_URL + "notification?letterUrl=%s", DOCUMENT_DOWNLOAD_URL);
-        final Predicate<String> jsonContainsNotification = jsonContainsNotificationWith(cppNotificationId, STATUS_SENT);
+        final Matcher<String> jsonContainsNotification = jsonContainsNotificationWith(cppNotificationId, STATUS_SENT);
 
         pollForResponseAfterSentNotificationProcessed(url, NOTIFICATIONS_CONTENT_TYPE, jsonContainsNotification);
 
@@ -329,29 +339,22 @@ public class QueryIT {
 
     private void pollForResponseAfterSentNotificationProcessed(final String url,
                                                                final String mediaType,
-                                                               final Predicate<String> stringPredicate) {
-        final PollingRequestParams pollingRequestParams =
-                pollingRequestParams(url, mediaType)
-                        .withResponseBodyCondition(stringPredicate)
-                        .withExpectedResponseStatus(OK)
-                        .withHeader(USER_ID, NOTIFY_SYSTEM_USER)
-                        .withDelayInMillis(1000L)
-                        .withRetryCount(60)
-                        .build();
-
-        pollingRestClient.pollUntilExpectedResponse(pollingRequestParams);
+                                                               final Matcher<String> matcher) {
+        RestPoller.poll(requestParams(url, mediaType).withHeader(USER_ID, NOTIFY_SYSTEM_USER).build(),
+                new FibonacciPollWithStartAndMax(Duration.ofSeconds(1), Duration.ofSeconds(10)), Duration.ofSeconds(60))
+                .until(status().is(OK), payload().that(matcher));
     }
 
-    private Predicate<String> jsonContainsNotificationWith(final UUID notificationId, final String status) {
-        return json -> {
-            final JsonPath responsePayload = new JsonPath(json);
-            final List<Map> notifications = responsePayload.getJsonObject("notifications");
-
-            return notifications.stream()
-                    .anyMatch(notification ->
-                            notification.get("notificationId").equals(notificationId.toString()) &&
-                                    notification.get("status").equals(status));
-        };
+    private Matcher<String> jsonContainsNotificationWith(final UUID notificationId, final String status) {
+        return allOf(
+                isJson(),
+                hasJsonPath("$.notifications[*]",
+                        hasItem(allOf(
+                                hasEntry("notificationId", notificationId.toString()),
+                                hasEntry("status", status)
+                        ))
+                )
+        );
     }
 
     private void sendAndAssertEmailNotification(final UUID notificationId) {
