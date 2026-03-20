@@ -9,7 +9,7 @@
 
     <groupId>uk.gov.moj.cpp.notification.notify</groupId>
     <artifactId>notificationnotify</artifactId>
-    <version>17.104.43-SNI-8711-SNAPSHOT</version>
+    <version>17.104.44-SNI-8711-SNAPSHOT</version>
     <packaging>pom</packaging>
 
 
