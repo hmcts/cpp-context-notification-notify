@@ -10,9 +10,14 @@ public class FailureSelector {
 
     private static final String NOTIFICATION_EXCEPTION_MESSAGE = "Error when turning Base64InputStream into a string";
     private static final String NOTIFICATION_DOWNLOAD_EXCEPTION_MESSAGE = "Document download failed for Notification";
+    private static final String SSL_HANDSHAKE_EXCEPTION_MESSAGE = "javax.net.ssl.SSLHandshakeException";
 
     public boolean isTemporaryFailure(final ErrorResponse errorResponse) {
-        return isFullPdfDownloadFailure(errorResponse) || !isPermanentFailure(errorResponse) || isInternalServerError(errorResponse) || isDocumentDownloadFailure(errorResponse);
+        return isFullPdfDownloadFailure(errorResponse)
+                || !isPermanentFailure(errorResponse)
+                || isInternalServerError(errorResponse)
+                || isDocumentDownloadFailure(errorResponse)
+                || isSslHandshakeFailure(errorResponse);
     }
 
     private boolean isPermanentFailure(final ErrorResponse errorResponse) {
@@ -42,5 +47,11 @@ public class FailureSelector {
         return errorResponse.getStatusCode() == 0 &&
                 errorResponse.getErrorMessage() != null &&
                 errorResponse.getErrorMessage().contains(NOTIFICATION_DOWNLOAD_EXCEPTION_MESSAGE);
+    }
+
+    private boolean isSslHandshakeFailure(final ErrorResponse errorResponse) {
+        return errorResponse.getStatusCode() == 0 &&
+                errorResponse.getErrorMessage() != null &&
+                errorResponse.getErrorMessage().contains(SSL_HANDSHAKE_EXCEPTION_MESSAGE);
     }
 }
