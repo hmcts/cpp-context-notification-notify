@@ -3,7 +3,7 @@
     <parent>
         <artifactId>notificationnotify-command</artifactId>
         <groupId>uk.gov.moj.cpp.notification.notify</groupId>
-        <version>17.104.45-RE-SNAPSHOT</version>
+        <version>17.104.46-RE-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
