@@ -91,4 +91,15 @@ public class FailureSelectorTest {
 
         assertThat(failureSelector.isTemporaryFailure(errorResponse), is(true));
     }
+
+    @Test
+    public void shouldBeTemporaryFailureIfTheHttpStatusCodeIsZeroAndErrorMessageIsSslHandshakeException() throws Exception {
+
+        final ErrorResponse errorResponse = mock(ErrorResponse.class);
+
+        when(errorResponse.getStatusCode()).thenReturn(0);
+        when(errorResponse.getErrorMessage()).thenReturn("Gov.Notify responded with 'javax.net.ssl.SSLHandshakeException: Remote host terminated the handshake'");
+
+        assertThat(failureSelector.isTemporaryFailure(errorResponse), is(true));
+    }
 }
