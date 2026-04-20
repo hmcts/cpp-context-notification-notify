@@ -12,6 +12,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>uk.gov.justice.event-store</groupId>
+            <artifactId>event-tracking-discovery</artifactId>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>notificationnotify-command-api</artifactId>
             <version>${project.version}</version>
