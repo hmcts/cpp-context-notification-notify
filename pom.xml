@@ -17,7 +17,7 @@
 
     <properties>
         <notification-client.version>3.17.3-RELEASE</notification-client.version>
-        <coredomain.version>17.104.3</coredomain.version>
+        <coredomain.version>17.104.4</coredomain.version>
         <stream-transformation-tool-api.version>7.0.0</stream-transformation-tool-api.version>
 
         <maven.cucumber.reporting.plugin.version>2.0.0</maven.cucumber.reporting.plugin.version>
