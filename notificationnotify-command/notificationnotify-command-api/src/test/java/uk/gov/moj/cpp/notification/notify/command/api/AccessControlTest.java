@@ -21,6 +21,7 @@ public class AccessControlTest extends BaseDroolsAccessControlTest {
 
     private static final String SEND_EMAIL_ACTION = "notificationnotify.send-email-notification";
     private static final String SEND_LETTER_ACTION = "notificationnotify.send-letter-notification";
+    private static final String INGEST_FILE_ACTION = "notificationnotify.ingest-file";
 
     private Action action;
 
@@ -95,6 +96,38 @@ public class AccessControlTest extends BaseDroolsAccessControlTest {
 
         verify(userAndGroupProvider).isMemberOfAnyOfTheSuppliedGroups(action,
                 RuleConstants.getSendLetterActionGroups());
+        verifyNoMoreInteractions(userAndGroupProvider);
+    }
+
+    @Test
+    public void shouldGrantAccessForIngestFileIfMemberOfAllowedGroups() {
+
+        action = createActionFor(INGEST_FILE_ACTION);
+        when(userAndGroupProvider.isMemberOfAnyOfTheSuppliedGroups(action,
+                RuleConstants.getIngestFileActionGroups())).thenReturn(true);
+
+        final ExecutionResults executionResults = executeRulesWith(action);
+
+        assertSuccessfulOutcome(executionResults);
+
+        verify(userAndGroupProvider).isMemberOfAnyOfTheSuppliedGroups(action,
+                RuleConstants.getIngestFileActionGroups());
+        verifyNoMoreInteractions(userAndGroupProvider);
+    }
+
+    @Test
+    public void shouldDenyAccessForIngestFileIfNotMemberOfAllowedGroups() {
+
+        action = createActionFor(INGEST_FILE_ACTION);
+        when(userAndGroupProvider.isMemberOfAnyOfTheSuppliedGroups(action,
+                RuleConstants.getIngestFileActionGroups())).thenReturn(false);
+
+        final ExecutionResults executionResults = executeRulesWith(action);
+
+        assertFailureOutcome(executionResults);
+
+        verify(userAndGroupProvider).isMemberOfAnyOfTheSuppliedGroups(action,
+                RuleConstants.getIngestFileActionGroups());
         verifyNoMoreInteractions(userAndGroupProvider);
     }
 }

@@ -1,28 +1,34 @@
 package uk.gov.moj.cpp.notification.notify.event.processor.sender;
 
-import static java.util.Optional.empty;
 import static java.util.UUID.randomUUID;
-import static uk.gov.justice.services.messaging.JsonObjects.createObjectBuilder;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.services.fileservice.api.FileRetriever;
-import uk.gov.justice.services.fileservice.api.FileServiceException;
-import uk.gov.justice.services.fileservice.domain.FileReference;
 import uk.gov.moj.cpp.notification.notify.event.processor.response.DownloadResponse;
 import uk.gov.moj.cpp.notification.notify.event.processor.response.ErrorResponse;
 import uk.gov.moj.cpp.notification.notify.event.processor.response.NotificationResponse;
 
-import java.io.ByteArrayInputStream;
-import java.util.Optional;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobProperties;
+import com.azure.storage.blob.models.BlobRange;
+import com.azure.storage.blob.models.BlobStorageException;
 
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -35,19 +41,41 @@ public class AttachmentsRetrieverTest {
     private Logger logger;
 
     @Mock
-    private FileRetriever fileRetriever;
+    private BlobContainerClient blobContainerClient;
+
+    @Mock
+    private BlobClient blobClient;
+
+    @Mock
+    private BlobProperties blobProperties;
 
     @InjectMocks
     private AttachmentsRetriever attachmentsRetriever;
 
     @Test
-    public void shouldGetAttachmentFromFileService() throws FileServiceException {
+    public void shouldGetAttachmentFromFileService() throws Exception {
         final UUID notificationId = randomUUID();
         final UUID fileId = randomUUID();
-
         final byte[] content = "Content".getBytes();
         final String filename = "sample.pdf";
-        when(fileRetriever.retrieve(fileId)).thenReturn(Optional.of(new FileReference(fileId, createObjectBuilder().add("fileName", filename).build(), new ByteArrayInputStream(content))));
+        final Map<String, String> metadata = new HashMap<>();
+        metadata.put("filename", filename);
+
+        when(blobContainerClient.getBlobClient("internal/" + fileId)).thenReturn(blobClient);
+        when(blobClient.exists()).thenReturn(true);
+        when(blobClient.getProperties()).thenReturn(blobProperties);
+        when(blobProperties.getMetadata()).thenReturn(metadata);
+
+        final ArgumentCaptor<OutputStream> outputStreamCaptor = ArgumentCaptor.forClass(OutputStream.class);
+        final ArgumentCaptor<BlobRange> blobRangeCaptor = ArgumentCaptor.forClass(BlobRange.class);
+        doAnswer(invocation -> {
+            final OutputStream outputStream = invocation.getArgument(0);
+            outputStream.write(content);
+            return null;
+        }).when(blobClient).downloadStreamWithResponse(
+                outputStreamCaptor.capture(), blobRangeCaptor.capture(),
+                isNull(), isNull(), eq(false), isNull(), isNull());
+
         final NotificationResponse attachment = attachmentsRetriever.getAttachment(notificationId, fileId);
 
         assertThat(attachment.isSuccessful(), is(true));
@@ -56,36 +84,41 @@ public class AttachmentsRetrieverTest {
         assertThat(downloadResponse.getSuccessfulDocumentDownload().getFileName(), is(filename));
         assertThat(downloadResponse.getSuccessfulDocumentDownload().getBytes(), is(content));
         assertThat(downloadResponse.getSuccessfulDocumentDownload().getHttpResult(), is(HttpStatus.SC_OK));
+        assertThat(blobRangeCaptor.getValue().getOffset(), is(0L));
+        assertThat(blobRangeCaptor.getValue().getCount(), is(1_000_000_000L));
     }
 
     @Test
-    public void shouldReturnNotFoundWhenFileDoesNotExistInFileService() throws FileServiceException {
+    public void shouldReturnNotFoundWhenFileDoesNotExistInFileService() {
         final UUID notificationId = randomUUID();
         final UUID fileId = randomUUID();
 
-        when(fileRetriever.retrieve(fileId)).thenReturn(empty());
+        when(blobContainerClient.getBlobClient("internal/" + fileId)).thenReturn(blobClient);
+        when(blobClient.exists()).thenReturn(false);
+
         final NotificationResponse attachment = attachmentsRetriever.getAttachment(notificationId, fileId);
 
         assertThat(attachment.isSuccessful(), is(false));
         assertThat(attachment, is(instanceOf(ErrorResponse.class)));
         final ErrorResponse errorResponse = (ErrorResponse) attachment;
         assertThat(errorResponse.getStatusCode(), is(HttpStatus.SC_NOT_FOUND));
-        assertThat(errorResponse.getErrorMessage(), is(String.format("File attachment with id '%s' not found in File Service for notification: %s", fileId, notificationId)));
+        assertThat(errorResponse.getErrorMessage(), is("File attachment with id '" + fileId + "' not found in File Service for notification: " + notificationId));
     }
 
     @Test
-    public void shouldReturnErrorWhenExceptionRetrievingFileFromFileService() throws FileServiceException {
+    public void shouldReturnErrorWhenExceptionRetrievingFileFromBlobStorage() {
         final UUID notificationId = randomUUID();
         final UUID fileId = randomUUID();
 
-        when(fileRetriever.retrieve(fileId)).thenThrow(new FileServiceException("error"));
+        when(blobContainerClient.getBlobClient("internal/" + fileId)).thenReturn(blobClient);
+        doThrow(BlobStorageException.class).when(blobClient).exists();
+
         final NotificationResponse attachment = attachmentsRetriever.getAttachment(notificationId, fileId);
 
-        assertFalse(attachment.isSuccessful());
+        assertThat(attachment.isSuccessful(), is(false));
         assertThat(attachment, is(instanceOf(ErrorResponse.class)));
         final ErrorResponse errorResponse = (ErrorResponse) attachment;
         assertThat(errorResponse.getStatusCode(), is(999));
-        assertThat(errorResponse.getErrorMessage(), is(String.format("Failed to retrieve file attachment with id '%s' from File Service for notification: %s", fileId, notificationId)));
+        assertThat(errorResponse.getErrorMessage(), is("Failed to retrieve file attachment with id '" + fileId + "' from File Service for notification: " + notificationId));
     }
-
 }

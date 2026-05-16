@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://justice.gov.uk/json/schemas/domains/notificationnotify/notificationnotify.command.ingest-file.json",
+  "type": "object",
+  "properties": {
+    "fileId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "sourceUri": {
+      "type": "string"
+    },
+    "correlationId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "filename": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "fileId",
+    "sourceUri",
+    "correlationId",
+    "filename"
+  ]
+}

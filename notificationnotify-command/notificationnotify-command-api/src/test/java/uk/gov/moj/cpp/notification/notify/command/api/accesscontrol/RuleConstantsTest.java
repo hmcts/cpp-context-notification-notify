@@ -35,4 +35,13 @@ public class RuleConstantsTest {
         assertThat(sendEmailActionGroups, hasItem("System Users"));
         assertThat(sendEmailActionGroups, hasItem("Online Plea System Users"));
     }
+
+    @Test
+    public void shouldGetTheCorrectActionGroupsForIngestFile() {
+
+        final List<String> ingestFileActionGroups = RuleConstants.getIngestFileActionGroups();
+
+        assertThat(ingestFileActionGroups.size(), is(1));
+        assertThat(ingestFileActionGroups, hasItem("System Users"));
+    }
 }

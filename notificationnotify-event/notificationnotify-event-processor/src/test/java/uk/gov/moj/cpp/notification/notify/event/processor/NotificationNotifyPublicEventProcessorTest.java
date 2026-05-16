@@ -2,7 +2,6 @@ package uk.gov.moj.cpp.notification.notify.event.processor;
 
 import static com.jayway.jsonassert.JsonAssert.with;
 import static java.util.Optional.of;
-import static java.util.UUID.fromString;
 import static java.util.UUID.randomUUID;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static org.hamcrest.CoreMatchers.is;
@@ -15,6 +14,9 @@ import static uk.gov.justice.services.test.utils.core.matchers.UuidStringMatcher
 import static uk.gov.justice.services.test.utils.core.messaging.JsonEnvelopeBuilder.envelope;
 import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.setField;
 
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+
 import uk.gov.justice.json.schemas.domains.notificationnotify.EmailNotificationBounced;
 import uk.gov.justice.json.schemas.domains.notificationnotify.NotificationSent;
 import uk.gov.justice.json.schemas.domains.notificationnotify.PocaEmailAlreadyReceived;
@@ -24,10 +26,9 @@ import uk.gov.justice.services.common.converter.ZonedDateTimes;
 import uk.gov.justice.services.common.converter.jackson.ObjectMapperProducer;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.core.sender.Sender;
-import uk.gov.justice.services.fileservice.api.FileServiceException;
-import uk.gov.justice.services.fileservice.api.FileStorer;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.services.messaging.JsonEnvelope;
+import uk.gov.moj.cpp.notification.notify.filestore.azure.StoragePath;
 import uk.gov.moj.cpp.systemusers.ServiceContextSystemUserProvider;
 
 import java.time.ZonedDateTime;
@@ -60,7 +61,10 @@ public class NotificationNotifyPublicEventProcessorTest {
     private ObjectToJsonObjectConverter objectToJsonObjectConverter = new ObjectToJsonObjectConverter(objectMapper);
 
     @Mock
-    private FileStorer fileStorer;
+    private BlobContainerClient blobContainerClient;
+
+    @Mock
+    private BlobClient blobClient;
 
     @InjectMocks
     private NotificationNotifyPublicEventProcessor notificationNotifyEventProcessor;
@@ -85,7 +89,6 @@ public class NotificationNotifyPublicEventProcessorTest {
                 .withSentTime(ZonedDateTime.parse("2016-07-11T12:55:28.180Z"))
                 .build();
 
-
         final Envelope<NotificationSent> eventEnvelope = envelopeFrom(
                 metadataBuilder().withName("notificationnotify.events.notification-sent")
                         .withUserId(String.valueOf(randomUUID()))
@@ -96,12 +99,10 @@ public class NotificationNotifyPublicEventProcessorTest {
         notificationNotifyEventProcessor.notificationSuccess(eventEnvelope);
         verify(sender).send(jsonEnvelopeCaptor.capture());
 
-        final Envelope publicEventEnvelope = jsonEnvelopeCaptor
-                .getValue();
+        final Envelope publicEventEnvelope = jsonEnvelopeCaptor.getValue();
 
         assertThat(publicEventEnvelope.metadata().name(), is(NOTIFICATION_MARK_AS_SENT_PUBLIC_EVENT));
         assertThat(publicEventEnvelope.metadata().id().toString(), isAUuid());
-
     }
 
     @Test
@@ -123,27 +124,22 @@ public class NotificationNotifyPublicEventProcessorTest {
                 .withPayloadOf("correspondence", "clientContext")
                 .build();
 
-
         notificationNotifyEventProcessor.notificationFailed(eventEnvelope);
 
         verify(sender).send(jsonEnvelopeCaptor.capture());
 
-        final Envelope publicEventEnvelope = jsonEnvelopeCaptor
-                .getValue();
+        final Envelope publicEventEnvelope = jsonEnvelopeCaptor.getValue();
 
         assertThat(publicEventEnvelope.metadata().name(), is(NOTIFICATION_MARK_AS_FAILED_PUBLIC_EVENT));
         assertThat(publicEventEnvelope.metadata().id().toString(), isAUuid());
 
-        final String payloadJson = publicEventEnvelope
-                .payload()
-                .toString();
+        final String payloadJson = publicEventEnvelope.payload().toString();
 
         with(payloadJson)
                 .assertThat("notificationId", is(notificationId))
                 .assertThat("failedTime", is(failedTime))
                 .assertThat("errorMessage", is(errorMessage))
-                .assertThat("statusCode", is(statusCode))
-        ;
+                .assertThat("statusCode", is(statusCode));
     }
 
     @Test
@@ -163,33 +159,28 @@ public class NotificationNotifyPublicEventProcessorTest {
                 .withPayloadOf("correspondence", "clientContext")
                 .build();
 
-
         notificationNotifyEventProcessor.notificationFailed(eventEnvelope);
 
         verify(sender).send(jsonEnvelopeCaptor.capture());
 
-        final Envelope publicEventEnvelope = jsonEnvelopeCaptor
-                .getValue();
+        final Envelope publicEventEnvelope = jsonEnvelopeCaptor.getValue();
 
         assertThat(publicEventEnvelope.metadata().name(), is(NOTIFICATION_MARK_AS_FAILED_PUBLIC_EVENT));
         assertThat(publicEventEnvelope.metadata().id().toString(), isAUuid());
 
-        final String payloadJson = publicEventEnvelope
-                .payload()
-                .toString();
+        final String payloadJson = publicEventEnvelope.payload().toString();
 
         with(payloadJson)
                 .assertThat("notificationId", is(notificationId))
                 .assertThat("failedTime", is(failedTime))
                 .assertThat("errorMessage", is(errorMessage))
-                .assertNotDefined("statusCode")
-        ;
+                .assertNotDefined("statusCode");
     }
 
     @Test
     public void shouldSendPublicNotificationBouncedEvent() {
 
-        UUID notificationId = randomUUID();
+        final UUID notificationId = randomUUID();
         final Envelope<EmailNotificationBounced> eventEnvelope = envelopeFrom(
                 metadataBuilder().withName("notificationnotify.events.email-notification-bounced").withId(randomUUID()).build(),
                 EmailNotificationBounced.emailNotificationBounced().withNotificationId(notificationId).build());
@@ -203,7 +194,6 @@ public class NotificationNotifyPublicEventProcessorTest {
         assertThat(publicEventEnvelope.metadata().id().toString(), isAUuid());
         final EmailNotificationBounced payloadJson = (EmailNotificationBounced) publicEventEnvelope.payload();
         assertThat(payloadJson.getNotificationId(), is(notificationId));
-
     }
 
     @Test
@@ -240,14 +230,37 @@ public class NotificationNotifyPublicEventProcessorTest {
     }
 
     @Test
-    public void shouldDeleteAssociatedFileWhenPocaEmailAlreadyNotified() throws FileServiceException {
-        UUID pocaFileId = randomUUID();
+    public void shouldDeleteBlobWhenPocaEmailAlreadyReceived() {
+
+        final UUID pocaFileId = randomUUID();
         final Envelope<PocaEmailAlreadyReceived> eventEnvelope = envelopeFrom(
                 metadataBuilder().withName("notificationnotify.events.poca-email-already-received").withId(randomUUID()).build(),
                 PocaEmailAlreadyReceived.pocaEmailAlreadyReceived().withPocaFileId(pocaFileId).build());
 
+        final String expectedBlobName = StoragePath.internal().blobName(pocaFileId);
+        when(blobContainerClient.getBlobClient(expectedBlobName)).thenReturn(blobClient);
+
         notificationNotifyEventProcessor.pocaEmailAlreadyReceived(eventEnvelope);
 
-        verify(fileStorer).delete(pocaFileId);
+        verify(blobContainerClient).getBlobClient(expectedBlobName);
+        verify(blobClient).deleteIfExists();
+    }
+
+    @Test
+    public void shouldCatchRuntimeExceptionWhenDeleteBlobFails() {
+
+        final UUID pocaFileId = randomUUID();
+        final Envelope<PocaEmailAlreadyReceived> eventEnvelope = envelopeFrom(
+                metadataBuilder().withName("notificationnotify.events.poca-email-already-received").withId(randomUUID()).build(),
+                PocaEmailAlreadyReceived.pocaEmailAlreadyReceived().withPocaFileId(pocaFileId).build());
+
+        final String expectedBlobName = StoragePath.internal().blobName(pocaFileId);
+        when(blobContainerClient.getBlobClient(expectedBlobName)).thenReturn(blobClient);
+        when(blobClient.deleteIfExists()).thenThrow(new RuntimeException("storage unavailable"));
+
+        notificationNotifyEventProcessor.pocaEmailAlreadyReceived(eventEnvelope);
+
+        verify(blobContainerClient).getBlobClient(expectedBlobName);
+        verify(blobClient).deleteIfExists();
     }
 }

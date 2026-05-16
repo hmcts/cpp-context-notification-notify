@@ -1,23 +1,21 @@
 package uk.gov.moj.cpp.notification.notify.event.processor.task.pocaemail;
 
 import static java.util.Objects.nonNull;
+import static java.util.UUID.randomUUID;
 import static org.slf4j.LoggerFactory.getLogger;
-import static uk.gov.justice.services.core.annotation.Component.COMMAND_API;
 import static uk.gov.moj.cpp.jobstore.api.task.ExecutionInfo.executionInfo;
 import static uk.gov.moj.cpp.jobstore.api.task.ExecutionStatus.COMPLETED;
 import static uk.gov.moj.cpp.notification.notify.event.processor.task.Task.TaskNames.POCA_EMAIL_TASK;
 
+import com.azure.storage.blob.models.BlobStorageException;
 import uk.gov.justice.services.common.converter.JsonObjectToObjectConverter;
-import uk.gov.justice.services.common.converter.ZonedDateTimes;
-import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.core.annotation.ServiceComponent;
-import uk.gov.justice.services.fileservice.api.FileServiceException;
-import uk.gov.justice.services.fileservice.api.FileStorer;
+import uk.gov.moj.cpp.notification.notify.filestore.azure.FileStorer;
+import uk.gov.moj.cpp.notification.notify.filestore.azure.StoragePath;
 import uk.gov.moj.cpp.jobstore.api.task.ExecutableTask;
 import uk.gov.moj.cpp.jobstore.api.task.ExecutionInfo;
 import uk.gov.moj.cpp.notification.notify.event.processor.NotificationNotifyCommandSender;
 import uk.gov.moj.cpp.notification.notify.event.processor.PocaApplicationCommandSender;
-import uk.gov.moj.cpp.notification.notify.event.processor.error.XmlProcessingException;
+import uk.gov.moj.cpp.notification.notify.event.processor.error.DocumentUploadException;
 import uk.gov.moj.cpp.notification.notify.event.processor.task.domain.EmailDetail;
 import uk.gov.moj.cpp.notification.notify.event.processor.task.domain.MailServerCredentials;
 import uk.gov.moj.cpp.notification.notify.event.processor.task.handlers.EmailHandlerFactory;
@@ -30,8 +28,6 @@ import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import uk.gov.justice.services.messaging.JsonObjects;
-import javax.json.JsonObject;
 import javax.mail.MessagingException;
 
 import org.slf4j.Logger;
@@ -42,11 +38,9 @@ public class PocaEmailsTask implements ExecutableTask {
 
     private static final Logger LOGGER = getLogger(PocaEmailsTask.class);
 
-    private static final String POCA_EMAIL_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
     private static final String DOCX = "docx";
 
-    @Inject
-    UtcClock clock;
+    private static final StoragePath BLOB_PATH = StoragePath.internal();
 
     @Inject
     EmailHandlerFactory emailHandlerFactory;
@@ -58,7 +52,6 @@ public class PocaEmailsTask implements ExecutableTask {
     private JsonObjectToObjectConverter jsonObjectConverter;
 
     @Inject
-    @ServiceComponent(COMMAND_API)
     private FileStorer fileStorer;
 
     @Inject
@@ -85,7 +78,7 @@ public class PocaEmailsTask implements ExecutableTask {
                                     pocaApplicationCommandSender.processPocaEmail(uploadSingleDocument(emailDetail), emailDetail.getPocaMailId(), emailDetail.getSenderEmail(), emailDetail.getSubject());
                                 }
                                 emailHandler.deleteEmail(emailDetail);
-                            } catch (MessagingException | XmlProcessingException e) {
+                            } catch (MessagingException | DocumentUploadException e) {
                                 LOGGER.error("PocaEmailsTask failed to receive email", e);
                                 notificationNotifyCommandSender.recordCheckPocaEmailRequestAsFailed(mailServerCredentials.getServer(), e.getMessage());
                             }
@@ -100,29 +93,29 @@ public class PocaEmailsTask implements ExecutableTask {
                 .build();
     }
 
-    private UUID uploadSingleDocument(EmailDetail emailDetail) {
+    private UUID uploadSingleDocument(final EmailDetail emailDetail) {
+        final byte[] documentBytes;
+        try {
+            documentBytes = emailDetail.getDocumentContent().readAllBytes();
+        } catch (final IOException e) {
+            throw new DocumentUploadException("Unable to read document content from email attachment", e);
+        }
 
-        int count = 0;
         final int maxRetries = 3;
-        UUID pocaFileId;
+        final UUID correlationId = randomUUID();
+        BlobStorageException lastException = null;
 
-        final JsonObject metadata = JsonObjects.createObjectBuilder()
-                .add("fileName", emailDetail.getFileName())
-                .add("createdAt", ZonedDateTimes.toString(new UtcClock().now()))
-                .add("mediaType", POCA_EMAIL_CONTENT_TYPE)
-                .build();
-
-        while (true) {
+        for (int count = 0; count < maxRetries; count++) {
             try {
-                pocaFileId = fileStorer.store(metadata, emailDetail.getDocumentContent());
-                break;
-            } catch (FileServiceException ex) {
-                LOGGER.error("FAILED - Upload document in the filestore on retry {} of {} error :  {}", count, maxRetries, ex);
-                if (++count >= maxRetries) {
-                    throw new XmlProcessingException("Unable to process request due to system error. Please try after some time or contact common platform helpdesk.");
-                }
+                return fileStorer.store(BLOB_PATH, correlationId, emailDetail.getFileName(), documentBytes);
+            } catch (final BlobStorageException ex) {
+                LOGGER.warn("Upload to blob storage failed on attempt {} of {} for filename='{}': {}",
+                        count + 1, maxRetries, emailDetail.getFileName(), ex.getMessage());
+                lastException = ex;
             }
         }
-        return pocaFileId;
+        throw new DocumentUploadException(
+                "Failed to upload document '" + emailDetail.getFileName() + "' to blob storage after " + maxRetries + " attempts",
+                lastException);
     }
 }

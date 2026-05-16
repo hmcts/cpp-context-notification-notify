@@ -27,4 +27,8 @@ public class RuleConstants {
     public static List<String> getSendLetterActionGroups() {
         return asList(GROUP_SYSTEM_USERS, GROUP_ONLINE_PLEA_SYSTEM_USERS);
     }
+
+    public static List<String> getIngestFileActionGroups() {
+        return asList(GROUP_SYSTEM_USERS);
+    }
 }

@@ -40,4 +40,14 @@ public class NotifyCommandApi {
 
         sender.send(envelopeFrom(metadata, envelope.payload()));
     }
+
+    @Handles("notificationnotify.ingest-file")
+    public void ingestFile(final JsonEnvelope envelope) {
+
+        final Metadata metadata = metadataFrom(envelope.metadata())
+                .withName("notificationnotify.command.ingest-file")
+                .build();
+
+        sender.send(envelopeFrom(metadata, envelope.payload()));
+    }
 }

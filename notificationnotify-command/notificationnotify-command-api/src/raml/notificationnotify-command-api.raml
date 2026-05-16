@@ -4,6 +4,21 @@ protocols: [ HTTP ]
 
 baseUri: http://localhost:8080/notificationnotify-command-api/command/api/rest/notificationnotify
 
+/files/{fileId}:
+  post:
+    description: |
+      ...
+      (mapping):
+          requestType: application/vnd.notificationnotify.ingest-file+json
+          name: notificationnotify.ingest-file
+      ...
+    body:
+        application/vnd.notificationnotify.ingest-file+json:
+           example:
+            !include json/notificationnotify.ingest-file.json
+           schema:
+            !include json/schema/notificationnotify.ingest-file.json
+
 /notifications/{notificationId}:
   post:
     description: |

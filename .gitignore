@@ -60,3 +60,6 @@ buildContexts.sh
 lightning-jenkins.properties
 **/.DS_Store
 
+
+# Claude Code
+.claude/

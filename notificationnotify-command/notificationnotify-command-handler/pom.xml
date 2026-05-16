@@ -3,7 +3,7 @@
     <parent>
         <artifactId>notificationnotify-command</artifactId>
         <groupId>uk.gov.moj.cpp.notification.notify</groupId>
-        <version>17.104.46-SNAPSHOT</version>
+        <version>17.104.47-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -33,6 +33,11 @@
         <dependency>
             <groupId>uk.gov.moj.cpp.notification.notify</groupId>
             <artifactId>notificationnotify-domain-aggregate</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.moj.cpp.notification.notify</groupId>
+            <artifactId>notificationnotify-file-store-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
