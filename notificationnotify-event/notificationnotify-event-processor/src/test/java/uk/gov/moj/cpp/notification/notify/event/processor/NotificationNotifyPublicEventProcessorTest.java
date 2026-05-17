@@ -6,6 +6,7 @@ import static java.util.UUID.randomUUID;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.messaging.Envelope.envelopeFrom;
@@ -28,11 +29,14 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.core.sender.Sender;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.services.messaging.JsonEnvelope;
+import uk.gov.moj.cpp.notification.notify.event.processor.sender.BlobFileEmailSender;
 import uk.gov.moj.cpp.notification.notify.filestore.azure.StoragePath;
 import uk.gov.moj.cpp.systemusers.ServiceContextSystemUserProvider;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;
+
+import javax.json.Json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,6 +78,9 @@ public class NotificationNotifyPublicEventProcessorTest {
 
     @Mock
     private ServiceContextSystemUserProvider serviceContextSystemUserProvider;
+
+    @Mock
+    private BlobFileEmailSender blobFileEmailSender;
 
     @BeforeEach
     public void setup() {
@@ -262,5 +269,46 @@ public class NotificationNotifyPublicEventProcessorTest {
 
         verify(blobContainerClient).getBlobClient(expectedBlobName);
         verify(blobClient).deleteIfExists();
+    }
+
+    @Test
+    public void shouldSendEmailWhenLiveReportGeneratedWithBlobUriAndRecipientEmail() {
+
+        final UUID correlationId = randomUUID();
+        final String blobUri = "https://storage.blob.core.windows.net/mi-live-reports/hmctsmi-warrants-2025-01-15.xlsx";
+        final String recipientEmail = "reports@example.com";
+        final String subject = "Warrants Report 2025-01-15";
+        final String filename = "hmctsmi-warrants-2025-01-15.xlsx";
+
+        final JsonEnvelope eventEnvelope = envelope()
+                .with(metadataBuilder()
+                        .withName("public.mireportdata.live-report-generated")
+                        .withId(correlationId))
+                .withPayloadOf(blobUri, "blobUri")
+                .withPayloadOf(filename, "filename")
+                .withPayloadOf(recipientEmail, "recipientEmail")
+                .withPayloadOf(subject, "subject")
+                .build();
+
+        notificationNotifyEventProcessor.liveReportGenerated(eventEnvelope);
+
+        verify(blobFileEmailSender).sendEmailWithBlobAttachment(correlationId, blobUri, recipientEmail, subject, filename);
+    }
+
+    @Test
+    public void shouldSkipEmailWhenLiveReportGeneratedWithoutBlobUri() {
+
+        final UUID correlationId = randomUUID();
+
+        final JsonEnvelope eventEnvelope = envelope()
+                .with(metadataBuilder()
+                        .withName("public.mireportdata.live-report-generated")
+                        .withId(correlationId))
+                .withPayloadOf("hmctsmi-warrants-2025-01-15.xlsx", "filename")
+                .build();
+
+        notificationNotifyEventProcessor.liveReportGenerated(eventEnvelope);
+
+        verify(blobFileEmailSender, never()).sendEmailWithBlobAttachment(correlationId, null, null, null, null);
     }
 }

@@ -155,4 +155,20 @@ public class NotificationNotifyPublicEventProcessor {
         final String filename = payload.getString("filename");
         blobFileEmailSender.sendEmailWithBlobAttachment(correlationId, sourceBlobUri, recipientEmail, subject, filename);
     }
+
+    @Handles("public.mireportdata.live-report-generated")
+    public void liveReportGenerated(final JsonEnvelope event) {
+        final JsonObject payload = event.payloadAsJsonObject();
+        final String blobUri = payload.getString("blobUri", null);
+        if (blobUri == null) {
+            LOGGER.warn("public.mireportdata.live-report-generated received without blobUri — skipping email correlationId='{}'",
+                    event.metadata().id());
+            return;
+        }
+        final UUID correlationId = event.metadata().id();
+        final String recipientEmail = payload.getString("recipientEmail");
+        final String subject = payload.getString("subject");
+        final String filename = payload.getString("filename");
+        blobFileEmailSender.sendEmailWithBlobAttachment(correlationId, blobUri, recipientEmail, subject, filename);
+    }
 }

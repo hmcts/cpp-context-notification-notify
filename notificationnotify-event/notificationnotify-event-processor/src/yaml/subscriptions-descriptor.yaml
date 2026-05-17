@@ -30,3 +30,9 @@ subscriptions_descriptor:
         - name: public.referencedata.event.reference-data-file-published
           schema_uri: http://cpp.moj.gov.uk/referencedata/json/schemas/event/public-reference-data-file-published.json
       event_source_name: public.event.source
+
+    - name: public mireportdata live report subscription
+      events:
+        - name: public.mireportdata.live-report-generated
+          schema_uri: http://cpp.moj.gov.uk/mireportdata/json/schemas/event/public.mireportdata.live-report-generated.json
+      event_source_name: public.event.source
