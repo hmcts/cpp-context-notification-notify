@@ -111,8 +111,8 @@ would add storage cost and lifecycle-management overhead with no benefit.
 
 | Service | Role | Status | Notes |
 |---|---|---|---|
-| `cpp-context-mi-reportdata` | Owner (publisher) | ⚠️ In progress | `LiveReportGenerationProcessor` publishes `public.mireportdata.live-report-generated` with `blobUri` + routing fields. Unit tests pass. IT pending (`runIntegrationTests.sh`). |
-| `cpp-context-notification-notify` | Receiver (sink) | ⚠️ In progress | `NotificationNotifyPublicEventProcessor.liveReportGenerated` → `BlobFileEmailSender.sendEmailWithBlobAttachment`. Subscription in `subscriptions-descriptor.yaml`. Unit tests pass. IT pending. |
+| `cpp-context-mi-reportdata` | Owner (publisher) | ✅ Done | `LiveReportGenerationProcessor` publishes `public.mireportdata.live-report-generated` with `blobUri` + routing fields. Full `runIntegrationTests.sh` passed: 314 tests, 0 failures, 11 skipped (2026-05-17). |
+| `cpp-context-notification-notify` | Receiver (sink) | ✅ Done | `NotificationNotifyPublicEventProcessor.liveReportGenerated` → `BlobFileEmailSender.sendEmailWithBlobAttachment`. Subscription in `subscriptions-descriptor.yaml`. `LiveReportEmailDeliveryIT` (4 tests) pass against Azurite. Full `runIntegrationTests.sh` passed: 48 tests, 0 failures, 8 skipped (2026-05-17). |
 
 ### Known gaps
 

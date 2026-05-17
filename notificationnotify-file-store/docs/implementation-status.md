@@ -25,7 +25,7 @@ context.
 | **BYOFS-1.6** | Integration test against Azurite | 3 | ✅ Done | Azurite via `cpp-azurite` Docker container. `BlobStoreTestHelper` in `notificationnotify-file-store-test-utils`; unit tests in `-core` and `-test-utils` cover all CDI wiring and path-prefix logic. |
 | **BYOFS-1.7** | Onboarding guide + SRE runbook | 3 | 🟡 Partial | `azure-blobstore-migration.md` covers onboarding and dev setup. Production SRE runbook (alert thresholds, on-call steps, connection string rotation) not started. |
 
-**Total: 4 done / 1 partial / 2 not started out of 7 stories**
+**Total: 5 done / 1 partial / 1 not started out of 7 stories**
 
 ---
 
@@ -130,9 +130,9 @@ The current implementation uses the v6 design: owner mints a read User Delegatio
 | BYOFS-3.1 | Service Bus message contract spec for UC2.1 | 2 | ✅ Done | `docs/stream-to-sink-event-contract.md` — event name, payload fields, blobUri vs downloadableLink, skip behaviour, dual-mode auth. |
 | BYOFS-3.2 | No-persistence stream-through convention spec | 2 | ✅ Done | `docs/streaming.md` Pattern 3 — cross-container stream-to-sink, dual-mode BlobClient, sink-buffering caveat. Summary table updated. |
 | BYOFS-3.3 | Reference example: receiver-side stream-to-sink | 5 | ✅ Done | `docs/reference-example.md` `streamCrossContainerToBytes` method + pattern notes; `docs/byofs-use-cases.md` UC2.1 section. |
-| BYOFS-3.4 | Integration test: cross-container stream-to-email | 5 | ⚠️ In progress | `LiveReportEmailDeliveryIT` written (4 tests). IT script run pending. |
+| BYOFS-3.4 | Integration test: cross-container stream-to-email | 5 | ✅ Done | `LiveReportEmailDeliveryIT` — 4 tests pass against Azurite. Verifies byte-fidelity, no copy in receiver container, published-prefix path, URI segment resolution. |
 | BYOFS-3.5 | Adopter onboarding guide + SRE runbook for UC2.1 | 3 | ✅ Done | `docs/stream-to-sink-adopter-guide.md` — subscription config, handler pattern, RBAC requirements, SRE runbook with SQL/CLI diagnostics. |
-| BYOFS-3.6 | Pilot integration: `mi-reportdata → notification-notify` | 3 | ⚠️ In progress | Production code and unit tests committed and pushed. IT pending (`runIntegrationTests.sh`). BYOFS-2.1 RBAC grant required for production. |
+| BYOFS-3.6 | Pilot integration: `mi-reportdata → notification-notify` | 3 | ✅ Done | `LiveReportGenerationProcessor` publishes `public.mireportdata.live-report-generated`; `NotificationNotifyPublicEventProcessor` → `BlobFileEmailSender`. Full `runIntegrationTests.sh` passed: notification-notify 48 tests (0 failures), mi-reportdata 314 tests (0 failures) (2026-05-17). BYOFS-2.1 RBAC grant required before production cross-container read works. |
 
 ---
 
