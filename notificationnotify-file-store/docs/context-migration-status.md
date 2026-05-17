@@ -44,8 +44,6 @@ pattern.
 | Context | Use cases | What's done | What's missing |
 |---|---|---|---|
 | `cpp-context-system-doc-generator` | UC1, UC2 owner, UC3 | **UC1 + UC2 owner complete** (`byo-file-store` branch): UC1 — `PayloadRetrievalService` reads uploaded payload from `internal/` via `FileRetriever` and re-stores template payload via `FileStorer`; `RenderDocumentDelegate.fetchPayload()` reads template payload from `internal/` via `FileRetriever`. UC2 owner — `RenderDocumentDelegate` stores SJP transparency/press-report PDFs directly to Azure Blob under `published/sjp-docs/` via `FileStorer`. `SjpDocumentPublisher` generates a read-SAS URI — no PostgreSQL round-trip. `public.systemdocgenerator.events.document-available` carries `blobFileId`+`sourceUri` for SJP to consume. 11 tests added. End-to-end with SJP confirmed working via `TransparencyReportIT` + `PressTransparencyReportIT` (2026-05-17). Full `runIntegrationTests.sh` passed: 78 tests, 0 failures, 0 skipped (2026-05-17). | UC3 (write-SAS Event Grid callback) not yet started. |
-| `cpp-context-listing-courtscheduler` | UC1, UC2 receiver | `AzureBlobClientService` calls `BlobServiceClient`/`BlobClient` directly including `copyFromUrl`. `DefaultAzureCredentialBuilder` in place. | Adopt `FileStorer`/`FileIngestor` CDI pattern; remove `rest-adapter-file-service` dependency; add BYOFS-1.3 metadata convention; add Azurite IT tests. |
-| `cpp-context-referencedata-offences` | UC1 | `AzureBlobClientService` calls `BlobClient.upload()` and download directly. `DefaultAzureCredentialBuilder` in place. | Adopt `FileStorer`/`FileRetriever` CDI pattern; add BYOFS-1.3 metadata convention; add Azurite IT tests. |
 
 ---
 
@@ -114,9 +112,9 @@ are not part of the file-service migration scope.
 | Status | Count |
 |---|---|
 | Fully migrated | 4 |
-| Partially migrated | 3 |
+| Partially migrated | 1 |
 | Not started — high impact | 5 |
 | Not started — moderate impact | 7 |
 | Not started — low impact / needs confirmation | 10 |
 | Azure-native / out of scope | 2 |
-| **Total with file storage usage** | **31** |
+| **Total with file storage usage** | **29** |
