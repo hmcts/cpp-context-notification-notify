@@ -33,8 +33,8 @@ Design documents live in [`hmcts/pe_arch_design_docs/mbd_filestore`](https://git
 | [`metadata-convention.md`](metadata-convention.md) | Required blob metadata keys (`correlation_id`, `filename`) — normative definition |
 | [`correlation-id.md`](correlation-id.md) | Per-caller `correlation_id` values, identity-as-path and name-based UUID patterns |
 | [`streaming.md`](streaming.md) | How to stream blob content without buffering — three patterns plus what not to use |
-| [`uc21-message-contract.md`](uc21-message-contract.md) | UC2.1 event contract — `public.mireportdata.live-report-generated` field spec, auth modes, skip behaviour |
-| [`uc21-adopter-guide.md`](uc21-adopter-guide.md) | How to implement a UC2.1 receiver: subscription, handler, cross-container client, RBAC, SRE runbook |
+| [`stream-to-sink-event-contract.md`](stream-to-sink-event-contract.md) | UC2.1 event contract — `public.mireportdata.live-report-generated` field spec, auth modes, skip behaviour |
+| [`stream-to-sink-adopter-guide.md`](stream-to-sink-adopter-guide.md) | How to implement a UC2.1 receiver: subscription, handler, cross-container client, RBAC, SRE runbook |
 | [`workload-identity-guide.md`](workload-identity-guide.md) | AKS Workload Identity wiring — FIC, ServiceAccount annotation, RBAC assignment |
 | [`reference-example.md`](reference-example.md) | Standalone Java class — UC1/UC2/UC2.1 patterns, no CDI, no JNDI |
 | [`design-decisions.md`](design-decisions.md) | Key architectural decisions and how they align with the v6 design |

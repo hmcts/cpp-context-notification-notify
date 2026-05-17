@@ -80,7 +80,7 @@ in the receiver's container.
 
 **Implementation pattern:** `BlobFileEmailSender.sendEmailWithBlobAttachment(correlationId, blobUri, recipientEmail, subject, filename)`
 
-See [`uc21-message-contract.md`](uc21-message-contract.md) for the full event shape and
+See [`stream-to-sink-event-contract.md`](stream-to-sink-event-contract.md) for the full event shape and
 auth configuration, and [`streaming.md`](streaming.md) Pattern 3 for the download code.
 
 ### When it applies

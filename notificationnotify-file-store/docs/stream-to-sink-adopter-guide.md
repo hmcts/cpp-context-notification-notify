@@ -6,7 +6,7 @@ canonical blob URI from a peer and pipes the content directly to an egress sink
 own container.
 
 For the full event contract of the pilot integration see
-[`uc21-message-contract.md`](uc21-message-contract.md).  For the download code see
+[`stream-to-sink-event-contract.md`](stream-to-sink-event-contract.md).  For the download code see
 [`streaming.md`](streaming.md) Pattern 3.
 
 ---
@@ -136,7 +136,7 @@ Write an IT that:
 Do not mock `BlobContainerClient` in IT tests — the whole point is to verify the
 cross-container auth path against a real Azurite instance.
 
-See `BlobCrossContainerEmailIT` in `notificationnotify-event-processor` as the
+See `LiveReportEmailDeliveryIT` in `notificationnotify-file-store-core` as the
 reference once that test is written (BYOFS-3.4).
 
 ---

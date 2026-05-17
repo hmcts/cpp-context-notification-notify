@@ -127,11 +127,11 @@ The current implementation uses the v6 design: owner mints a read User Delegatio
 
 | Ticket | Title | Points | Status |
 |---|---|---|---|
-| BYOFS-3.1 | Service Bus message contract spec for UC2.1 | 2 | ✅ Done | `docs/uc21-message-contract.md` — event name, payload fields, blobUri vs downloadableLink, skip behaviour, dual-mode auth. |
+| BYOFS-3.1 | Service Bus message contract spec for UC2.1 | 2 | ✅ Done | `docs/stream-to-sink-event-contract.md` — event name, payload fields, blobUri vs downloadableLink, skip behaviour, dual-mode auth. |
 | BYOFS-3.2 | No-persistence stream-through convention spec | 2 | ✅ Done | `docs/streaming.md` Pattern 3 — cross-container stream-to-sink, dual-mode BlobClient, sink-buffering caveat. Summary table updated. |
 | BYOFS-3.3 | Reference example: receiver-side stream-to-sink | 5 | ✅ Done | `docs/reference-example.md` `streamCrossContainerToBytes` method + pattern notes; `docs/byofs-use-cases.md` UC2.1 section. |
-| BYOFS-3.4 | Integration test: cross-container stream-to-email | 5 | ❌ Not started | |
-| BYOFS-3.5 | Adopter onboarding guide + SRE runbook for UC2.1 | 3 | ✅ Done | `docs/uc21-adopter-guide.md` — subscription config, handler pattern, RBAC requirements, SRE runbook with SQL/CLI diagnostics. |
+| BYOFS-3.4 | Integration test: cross-container stream-to-email | 5 | ⚠️ In progress | `LiveReportEmailDeliveryIT` written (4 tests). IT script run pending. |
+| BYOFS-3.5 | Adopter onboarding guide + SRE runbook for UC2.1 | 3 | ✅ Done | `docs/stream-to-sink-adopter-guide.md` — subscription config, handler pattern, RBAC requirements, SRE runbook with SQL/CLI diagnostics. |
 | BYOFS-3.6 | Pilot integration: `mi-reportdata → notification-notify` | 3 | ⚠️ In progress | Production code and unit tests committed and pushed. IT pending (`runIntegrationTests.sh`). BYOFS-2.1 RBAC grant required for production. |
 
 ---
