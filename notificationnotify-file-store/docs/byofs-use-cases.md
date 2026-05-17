@@ -36,9 +36,17 @@ None for the five services above.
 
 ### What it does
 
-The *owner* service generates a short-lived read-SAS URL on an existing blob and sends it (via a command or event) to the *receiver* service. The receiver performs a server-side blob copy from the SAS URL into its own container using `BlobCopyFromUrlOptions(sourceUri).setMetadata(...)` + `blobClient.copyFromUrlWithResponse(options, null, NONE)`. File bytes never transit the application server.
+**v7 (current):** The *owner* service stores a blob and publishes a CPP public event carrying
+the **canonical blob URI** (no SAS token). The *receiver* service, pre-granted
+`Storage Blob Data Reader` RBAC on the owner's container (BYOFS-2.1), performs
+`beginCopy(BlobBeginCopyOptions).waitForCompletion()`. Azure Storage copies the bytes
+server-side — they never transit the application server. BYOFS-1.3 metadata
+(`correlation_id` + `filename`) is set atomically on the destination blob via
+`BlobBeginCopyOptions.setMetadata(...)`.
 
-SAS generation must use User Delegation SAS (`generateUserDelegationSas`) — never account-key SAS.
+**v6 (legacy):** The owner minted a short-lived User Delegation SAS URL; receiver used
+`BlobCopyFromUrlOptions` + `copyFromUrlWithResponse`. Any service still using account-key
+`generateSas()` must migrate to `generateUserDelegationSas()` or upgrade to v7.
 
 ### When it applies
 

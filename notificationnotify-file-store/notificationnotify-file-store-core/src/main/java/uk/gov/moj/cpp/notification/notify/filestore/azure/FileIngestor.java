@@ -1,10 +1,11 @@
 package uk.gov.moj.cpp.notification.notify.filestore.azure;
 
-import static com.azure.core.util.Context.NONE;
 import static java.util.Map.of;
 
+import com.azure.core.util.polling.SyncPoller;
 import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.options.BlobCopyFromUrlOptions;
+import com.azure.storage.blob.models.BlobCopyInfo;
+import com.azure.storage.blob.options.BlobBeginCopyOptions;
 
 import java.net.URI;
 import java.util.UUID;
@@ -15,12 +16,13 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 /**
- * CDI bean that ingests a blob from a remote SAS URI into this service's own Azure Blob
- * container via a server-side copy (UC2 ownership transfer).
+ * CDI bean that ingests a blob from a peer service's container into this service's own Azure Blob
+ * container via an async-under-the-hood copy (UC2 ownership transfer, BYOFS v7).
  *
- * <p>The copy is performed synchronously using {@code copyFromUrlWithResponse}, which instructs
- * Azure Storage to pull the bytes directly from the source URI — they never transit this
- * application server. BYOFS-1.3 metadata ({@code correlation_id} + {@code filename}) is set
+ * <p>The copy is performed using {@code beginCopy(BlobBeginCopyOptions).waitForCompletion()}.
+ * Azure Storage pulls the bytes directly from the source URI — they never transit this application
+ * server. The receiver's managed identity must hold {@code Storage Blob Data Reader} on the owner's
+ * container (BYOFS-2.1). BYOFS-1.3 metadata ({@code correlation_id} + {@code filename}) is set
  * atomically on the destination blob.
  */
 @ApplicationScoped
@@ -41,7 +43,7 @@ public class FileIngestor {
      * @param fileId      UUID that identifies the blob within the prefix
      * @param correlationId business correlation ID to record on the destination blob
      * @param filename    human-readable filename stored in blob metadata
-     * @param sourceUri   read-SAS URL of the source blob (from the owning service)
+     * @param sourceUri   canonical URI of the source blob (no SAS token; RBAC read access required)
      */
     public void ingest(final StoragePath storagePath,
                        final UUID fileId,
@@ -49,12 +51,11 @@ public class FileIngestor {
                        final String filename,
                        final URI sourceUri) {
         final String blobName = storagePath.blobName(fileId);
-        blobContainerClient.getBlobClient(blobName)
-                .copyFromUrlWithResponse(
-                        new BlobCopyFromUrlOptions(sourceUri.toString())
-                                .setMetadata(of("correlation_id", correlationId.toString(),
-                                        "filename", filename)),
-                        null, NONE);
+        final SyncPoller<BlobCopyInfo, Void> poller = blobContainerClient.getBlobClient(blobName)
+                .beginCopy(new BlobBeginCopyOptions(sourceUri.toString())
+                        .setMetadata(of("correlation_id", correlationId.toString(),
+                                "filename", filename)));
+        poller.waitForCompletion();
         logger.info("Ingested blob '{}' sourceUri='{}' correlationId='{}' filename='{}'",
                 blobName, sourceUri, correlationId, filename);
     }

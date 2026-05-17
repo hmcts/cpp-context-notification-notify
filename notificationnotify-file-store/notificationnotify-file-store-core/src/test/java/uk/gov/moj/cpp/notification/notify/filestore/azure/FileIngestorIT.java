@@ -2,18 +2,14 @@ package uk.gov.moj.cpp.notification.notify.filestore.azure;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.setField;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.azure.storage.blob.sas.BlobSasPermission;
-import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 
 import java.net.URI;
-import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
 
@@ -25,11 +21,13 @@ import org.slf4j.LoggerFactory;
 public class FileIngestorIT {
 
     // Standard Azurite well-known test credential — not a real secret.
+    // Same credential used in FileStorerIT / FileRetrieverIT.
     // See: https://learn.microsoft.com/azure/storage/common/storage-use-azurite
     private static final String AZURITE_CONNECTION_STRING =
-            "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;" +
-            "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/" +
-            "K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1;";
+            "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
+            + "AccountKey="
+            + "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/"
+            + "K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1;";
 
     private static final String SOURCE_CONTAINER = "fileingestor-it-src-" + UUID.randomUUID().toString().substring(0, 8);
     private static final String DEST_CONTAINER   = "fileingestor-it-dst-" + UUID.randomUUID().toString().substring(0, 8);
@@ -64,7 +62,7 @@ public class FileIngestorIT {
     public void shouldCopyBlobFromSourceUriToInternalPath() {
         final UUID fileId = UUID.randomUUID();
         final BlobClient sourceBlobClient = uploadSourceBlob(fileId, "hello world".getBytes());
-        final URI sourceUri = buildSasUri(sourceBlobClient);
+        final URI sourceUri = URI.create(sourceBlobClient.getBlobUrl());
 
         fileIngestor.ingest(StoragePath.internal(), fileId, CORRELATION_ID, "report.csv", sourceUri);
 
@@ -75,7 +73,7 @@ public class FileIngestorIT {
     public void shouldSetCorrelationIdMetadataOnIngestedBlob() {
         final UUID fileId = UUID.randomUUID();
         final BlobClient sourceBlobClient = uploadSourceBlob(fileId, "content bytes".getBytes());
-        final URI sourceUri = buildSasUri(sourceBlobClient);
+        final URI sourceUri = URI.create(sourceBlobClient.getBlobUrl());
 
         fileIngestor.ingest(StoragePath.internal(), fileId, CORRELATION_ID, "report.csv", sourceUri);
 
@@ -89,7 +87,7 @@ public class FileIngestorIT {
     public void shouldSetFilenameMetadataOnIngestedBlob() {
         final UUID fileId = UUID.randomUUID();
         final BlobClient sourceBlobClient = uploadSourceBlob(fileId, "content bytes".getBytes());
-        final URI sourceUri = buildSasUri(sourceBlobClient);
+        final URI sourceUri = URI.create(sourceBlobClient.getBlobUrl());
 
         fileIngestor.ingest(StoragePath.internal(), fileId, CORRELATION_ID, "letter.docx", sourceUri);
 
@@ -104,7 +102,7 @@ public class FileIngestorIT {
         final UUID fileId = UUID.randomUUID();
         final byte[] originalContent = "original document content".getBytes();
         final BlobClient sourceBlobClient = uploadSourceBlob(fileId, originalContent);
-        final URI sourceUri = buildSasUri(sourceBlobClient);
+        final URI sourceUri = URI.create(sourceBlobClient.getBlobUrl());
 
         fileIngestor.ingest(StoragePath.internal(), fileId, CORRELATION_ID, "doc.pdf", sourceUri);
 
@@ -118,13 +116,5 @@ public class FileIngestorIT {
         final BlobClient blobClient = sourceBlobContainerClient.getBlobClient("source/" + fileId);
         blobClient.upload(new java.io.ByteArrayInputStream(content), content.length, true);
         return blobClient;
-    }
-
-    private URI buildSasUri(final BlobClient blobClient) {
-        final BlobSasPermission permission = new BlobSasPermission().setReadPermission(true);
-        final BlobServiceSasSignatureValues sasValues = new BlobServiceSasSignatureValues(
-                OffsetDateTime.now().plusHours(1), permission);
-        final String sasToken = blobClient.generateSas(sasValues);
-        return URI.create(blobClient.getBlobUrl() + "?" + sasToken);
     }
 }

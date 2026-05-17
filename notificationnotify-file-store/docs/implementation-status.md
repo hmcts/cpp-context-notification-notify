@@ -107,19 +107,19 @@ The current implementation uses the v6 design: owner mints a read User Delegatio
 | `cpp-context-system-doc-generator` UC2 owner | ✅ Done | `byo-file-store` branch. `RenderDocumentDelegate` stores SJP PDFs to `published/sjp-docs/` via `FileStorer`. `SjpDocumentPublisher` generates read-SAS URI from `blobFileId` — PostgreSQL round-trip eliminated. 11 tests added (`RenderDocumentDelegateTest` rewrite + new `SjpDocumentPublisherTest`). Full `runIntegrationTests.sh` passed: 78 tests, 0 failures, 0 skipped (2026-05-17). |
 | Full receiver/owner list | ⚠️ Pending | Other UC2 services pending TA team confirmation. |
 
-## BYOFS-2 epic — UC2: peer-to-peer `beginCopy` (v7, RBAC-only, not yet started)
+## BYOFS-2 epic — UC2: peer-to-peer `beginCopy` (v7, RBAC-only)
 
-**Note:** The current UC2 implementation uses v6 SAS. The v7 BYOFS-2 design replaces SAS with RBAC-only cross-container access: owner sends a Service Bus message (no SAS); receiver SP pre-granted `Storage Blob Data Reader` on owner's container via IaC; receiver calls `blobClient.beginCopy(sourceBlobUri)`. This is a separate epic, not yet started.
+**Note:** The current UC2 implementation uses v6 SAS. The v7 BYOFS-2 design replaces SAS with RBAC-only cross-container access: owner sends a Service Bus message (no SAS); receiver SP pre-granted `Storage Blob Data Reader` on owner's container via IaC; receiver calls `blobClient.beginCopy(sourceBlobUri)`.
 
-| Ticket | Title | Points | Status |
-|---|---|---|---|
-| BYOFS-2.1 | Bicep IaC: cross-container RBAC grant | 3 | ❌ Not started |
-| BYOFS-2.2 | Service Bus message contract spec | 2 | ❌ Not started |
-| BYOFS-2.3 | Metadata carry-forward convention | 2 | ❌ Not started |
-| BYOFS-2.4 | Reference example: receiver-side `beginCopy` | 5 | ❌ Not started |
-| BYOFS-2.5 | Integration test (cross-container peer copy) | 5 | ❌ Not started |
-| BYOFS-2.6 | Adopter onboarding guide + SRE runbook | 3 | ❌ Not started |
-| BYOFS-2.7 | Pilot integration | 3 | ❌ Not started |
+| Ticket | Title | Points | Status | Notes |
+|---|---|---|---|---|
+| BYOFS-2.1 | Bicep IaC: cross-container RBAC grant | 3 | ❌ Not started | TA/infra team. `Storage Blob Data Reader` on owner's container for each receiver identity. |
+| BYOFS-2.2 | Service Bus message contract spec | 2 | ✅ Done | `docs/rbac-peer-copy-message-contract.md` — event name, payload fields (`fileId`, `blobUri`, `correlationId`, `filename`), owner/receiver responsibilities, v6 vs v7 comparison. |
+| BYOFS-2.3 | Metadata carry-forward convention | 2 | ✅ Done | `docs/rbac-peer-copy-metadata.md` — why `beginCopy` does not auto-carry source metadata; `BlobBeginCopyOptions.setMetadata(...)` required on destination. |
+| BYOFS-2.4 | Reference example: receiver-side `beginCopy` | 5 | ✅ Done | `FileIngestor.ingest()` in `notificationnotify-file-store-core` updated to `beginCopy(BlobBeginCopyOptions).waitForCompletion()`; unit tests updated in `FileIngestorTest`. |
+| BYOFS-2.5 | Integration test (cross-container peer copy) | 5 | ✅ Done | `FileIngestorIT` — 4 tests against Azurite using canonical URLs (no SAS); asserts blob existence, `correlation_id`, `filename`, content round-trip. |
+| BYOFS-2.6 | Adopter onboarding guide + SRE runbook | 3 | ✅ Done | `docs/rbac-peer-copy-adopter-guide.md` — owner/receiver implementation steps, JNDI config, IT guidance, SRE runbook with RBAC diagnostic commands. |
+| BYOFS-2.7 | Pilot integration | 3 | ❌ Not started | Pending BYOFS-2.1 RBAC grant. Candidate: `system-doc-generator → sjp` SJP document transfer. |
 
 ---
 
