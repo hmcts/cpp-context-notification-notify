@@ -191,13 +191,89 @@ v7 approach is described in [`design-decisions.md`](design-decisions.md).
 
 ---
 
+## Pattern 3 — Cross-container stream-to-sink (UC2.1)
+
+A service receives a **canonical blob URI** from a peer (no SAS token) and reads
+the content, piping it directly to an egress sink — such as an SMTP email attachment.
+The receiver holds no copy of the blob in its own container.
+
+Auth is resolved in dual-mode: connection string for Azurite; `DefaultAzureCredential`
+for production (requires `Storage Blob Data Reader` RBAC on the producer's container).
+
+**Sink-buffering caveat:** some sinks require a `byte[]` rather than an `OutputStream`.
+JavaMail's `ByteArrayDataSource` is one example.  Where the sink API forces a
+`byte[]`, buffering via `ByteArrayOutputStream` is acceptable *only* for
+**known-bounded** files (for example, XLSX report files that are at most a few
+megabytes in practice).  Do **not** apply this pattern to arbitrary user-uploaded
+content or large attachments — use a `PipedInputStream` pair instead where the sink
+can accept a stream.
+
+```java
+import static java.util.Arrays.copyOfRange;
+import java.net.URI;
+import com.azure.identity.DefaultAzureCredentialBuilder;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobClientBuilder;
+import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.models.BlobRange;
+
+// --- Dual-mode client construction ---
+
+private BlobClient buildCrossContainerClient(final String canonicalBlobUri) {
+    final String connectionString = azureBlobConfiguration.getConnectionString();
+    if (connectionString != null && !connectionString.isBlank()) {
+        // Azurite path: /devstoreaccount1/{container}/{blobPath...}
+        final URI uri = URI.create(canonicalBlobUri);
+        final String[] segments = uri.getPath().split("/");
+        final String containerName = segments[2];
+        final String blobName = String.join("/", copyOfRange(segments, 3, segments.length));
+        return new BlobServiceClientBuilder()
+                .connectionString(connectionString)
+                .buildClient()
+                .getBlobContainerClient(containerName)
+                .getBlobClient(blobName);
+    }
+    // Production: Workload Identity via DefaultAzureCredential
+    return new BlobClientBuilder()
+            .endpoint(canonicalBlobUri)
+            .credential(new DefaultAzureCredentialBuilder().build())
+            .buildClient();
+}
+
+// --- Download and pipe to sink ---
+
+final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+blobClient.downloadStreamWithResponse(
+        buffer,
+        new BlobRange(0, 1_000_000_000L),
+        null, null, false, null, null);
+
+final byte[] bytes = buffer.toByteArray();
+// pass bytes to sink — e.g. JavaMail ByteArrayDataSource
+```
+
+Key points:
+- `canonicalBlobUri` must carry **no SAS token**.  A SAS URI causes
+  `BlobClientBuilder.endpoint()` to throw an invalid-endpoint exception.
+- The receiver needs `Storage Blob Data Reader` on the **producer's** container
+  (production). In Azurite the connection string provides access to all containers.
+- `downloadStreamWithResponse` with a 1 GB `BlobRange` is mandatory — `openInputStream()`
+  and `downloadContent()` both NPE in WildFly + Azurite (see above).
+- The cross-container RBAC grant (BYOFS-2.1) is not yet provisioned in production;
+  the pilot runs against Azurite only until that Bicep module lands.
+
+Reference implementation: `BlobFileEmailSender` in `notificationnotify-event-processor`.
+
+---
+
 ## Summary
 
 | Scenario | Pattern |
 |---|---|
 | Serve blob as HTTP response | `StreamingOutput` → `downloadStreamWithResponse` (Pattern 1) |
 | Process blob content — page count, metadata extraction | `PipedInputStream`/`PipedOutputStream` + `ManagedExecutorService` (Pattern 2) |
+| Cross-container read → egress sink, no receiver copy | `buildBlobClient(canonicalUri)` → `downloadStreamWithResponse` → sink (Pattern 3) |
 | Peer-to-peer copy (UC2, v6) | `copyFromUrlWithResponse` + `BlobCopyFromUrlOptions` — server-side, no streaming through pod |
 | Get file size | `blobClient.getProperties().getBlobSize()` |
-| Download to byte array | **FORBIDDEN** |
+| Download to byte array (arbitrary/large blobs) | **FORBIDDEN** |
 | `openInputStream()` / `downloadContent()` | **Do not use — NPE on Azurite** |

@@ -67,6 +67,54 @@ One service originates a file and a second service needs a durable copy in its o
 
 ---
 
+## UC2.1 — Cross-container stream-to-sink (read-and-process, no receiver container)
+
+### What it does
+
+The *owner* service uploads a blob to its own container and publishes a CPP event
+carrying the **canonical blob URI** (no SAS token) plus routing metadata (recipient
+email, filename, subject).  The *receiver* service opens a cross-container
+`BlobClient` pointed at that URI and pipes the bytes directly to an egress sink —
+in the pilot, an SMTP email attachment via JavaMail.  No copy of the blob is created
+in the receiver's container.
+
+**Implementation pattern:** `BlobFileEmailSender.sendEmailWithBlobAttachment(correlationId, blobUri, recipientEmail, subject, filename)`
+
+See [`uc21-message-contract.md`](uc21-message-contract.md) for the full event shape and
+auth configuration, and [`streaming.md`](streaming.md) Pattern 3 for the download code.
+
+### When it applies
+
+The receiver needs to act on the file content (send it, transform it, inspect it)
+but does not need to retain a durable copy in its own storage.  A persistent copy
+would add storage cost and lifecycle-management overhead with no benefit.
+
+### UC2.1 vs UC2
+
+| | UC2 | UC2.1 |
+|---|---|---|
+| Receiver container | Required (copy lands there) | Not needed |
+| Auth on owner's container | Read SAS (v6) or RBAC Reader (v7) | RBAC Reader (always) |
+| Message carries | SAS URI | Canonical blob URI (no SAS) |
+| Bytes transit receiver pod | No (server-side copy) | Yes (download → sink) |
+| Receiver retains a copy | Yes | No |
+
+### Implementation status
+
+| Service | Role | Status | Notes |
+|---|---|---|---|
+| `cpp-context-mi-reportdata` | Owner (publisher) | ⚠️ In progress | `LiveReportGenerationProcessor` publishes `public.mireportdata.live-report-generated` with `blobUri` + routing fields. Unit tests pass. IT pending (`runIntegrationTests.sh`). |
+| `cpp-context-notification-notify` | Receiver (sink) | ⚠️ In progress | `NotificationNotifyPublicEventProcessor.liveReportGenerated` → `BlobFileEmailSender.sendEmailWithBlobAttachment`. Subscription in `subscriptions-descriptor.yaml`. Unit tests pass. IT pending. |
+
+### Known gaps
+
+- **BYOFS-2.1 (not started):** `notification-notify`'s managed identity needs
+  `Storage Blob Data Reader` on `mi-reportdata`'s container.  Without this, the
+  production cross-container read will fail with 403.  The pilot can only run against
+  Azurite until this Bicep module lands.
+
+---
+
 ## UC3 — Stream or read a blob without storing a persistent copy
 
 ### What it does

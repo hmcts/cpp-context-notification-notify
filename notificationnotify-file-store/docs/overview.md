@@ -32,9 +32,11 @@ Design documents live in [`hmcts/pe_arch_design_docs/mbd_filestore`](https://git
 | [`jndi.md`](jndi.md) | Reference for every JNDI key with per-environment values and `standalone.xml` examples |
 | [`metadata-convention.md`](metadata-convention.md) | Required blob metadata keys (`correlation_id`, `filename`) — normative definition |
 | [`correlation-id.md`](correlation-id.md) | Per-caller `correlation_id` values, identity-as-path and name-based UUID patterns |
-| [`streaming.md`](streaming.md) | How to stream blob content without buffering — two patterns plus what not to use |
+| [`streaming.md`](streaming.md) | How to stream blob content without buffering — three patterns plus what not to use |
+| [`uc21-message-contract.md`](uc21-message-contract.md) | UC2.1 event contract — `public.mireportdata.live-report-generated` field spec, auth modes, skip behaviour |
+| [`uc21-adopter-guide.md`](uc21-adopter-guide.md) | How to implement a UC2.1 receiver: subscription, handler, cross-container client, RBAC, SRE runbook |
 | [`workload-identity-guide.md`](workload-identity-guide.md) | AKS Workload Identity wiring — FIC, ServiceAccount annotation, RBAC assignment |
-| [`reference-example.md`](reference-example.md) | Standalone Java class (~110 LoC) — all four patterns, no CDI, no JNDI |
+| [`reference-example.md`](reference-example.md) | Standalone Java class — UC1/UC2/UC2.1 patterns, no CDI, no JNDI |
 | [`design-decisions.md`](design-decisions.md) | Key architectural decisions and how they align with the v6 design |
 | [`byofs-implementation-gaps.md`](byofs-implementation-gaps.md) | Platform-level gap tracker (Bicep IaC, lifecycle policy, SRE runbook) |
 
