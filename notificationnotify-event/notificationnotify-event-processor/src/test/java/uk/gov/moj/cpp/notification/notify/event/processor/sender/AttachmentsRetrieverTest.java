@@ -64,6 +64,7 @@ public class AttachmentsRetrieverTest {
         when(blobContainerClient.getBlobClient("internal/" + fileId)).thenReturn(blobClient);
         when(blobClient.exists()).thenReturn(true);
         when(blobClient.getProperties()).thenReturn(blobProperties);
+        when(blobProperties.getBlobSize()).thenReturn((long) content.length);
         when(blobProperties.getMetadata()).thenReturn(metadata);
 
         final ArgumentCaptor<OutputStream> outputStreamCaptor = ArgumentCaptor.forClass(OutputStream.class);
@@ -103,6 +104,27 @@ public class AttachmentsRetrieverTest {
         final ErrorResponse errorResponse = (ErrorResponse) attachment;
         assertThat(errorResponse.getStatusCode(), is(HttpStatus.SC_NOT_FOUND));
         assertThat(errorResponse.getErrorMessage(), is("File attachment with id '" + fileId + "' not found in File Service for notification: " + notificationId));
+    }
+
+    @Test
+    public void shouldReturnErrorWhenFileSizeExceedsMaximumDownloadSize() {
+        final UUID notificationId = randomUUID();
+        final UUID fileId = randomUUID();
+        final long oversizedFileBytes = 15_728_641L;
+
+        when(blobContainerClient.getBlobClient("internal/" + fileId)).thenReturn(blobClient);
+        when(blobClient.exists()).thenReturn(true);
+        when(blobClient.getProperties()).thenReturn(blobProperties);
+        when(blobProperties.getBlobSize()).thenReturn(oversizedFileBytes);
+
+        final NotificationResponse attachment = attachmentsRetriever.getAttachment(notificationId, fileId);
+
+        assertThat(attachment.isSuccessful(), is(false));
+        assertThat(attachment, is(instanceOf(ErrorResponse.class)));
+        final ErrorResponse errorResponse = (ErrorResponse) attachment;
+        assertThat(errorResponse.getStatusCode(), is(HttpStatus.SC_REQUEST_TOO_LONG));
+        assertThat(errorResponse.getErrorMessage(), is(
+                "File attachment with id '" + fileId + "' for notification '" + notificationId + "' exceeds maximum download size: " + oversizedFileBytes + " bytes"));
     }
 
     @Test

@@ -21,10 +21,11 @@ import org.slf4j.Logger;
  * <p>The client is constructed once in {@link #initialise()} from JNDI-backed
  * {@link AzureBlobConfiguration} values and cached. Authentication resolves in this order:
  * <ol>
- *   <li>If {@code azure.storage.connection-string} is set and non-blank, a connection-string
- *       client is built — intended for local development against Azurite only.</li>
+ *   <li>If {@code azure.filestore.connection-string} is set to a real connection string (not
+ *       the {@code "DefaultAzureCredential"} sentinel), a connection-string client is built —
+ *       intended for local development against Azurite only.</li>
  *   <li>Otherwise, {@link com.azure.identity.DefaultAzureCredential} is used with
- *       {@code azure.storage.endpoint} — on AKS this resolves automatically to the pod's
+ *       {@code azure.filestore.endpoint} — on AKS this resolves automatically to the pod's
  *       Workload Identity (Entra ID Federated Identity Credential).</li>
  * </ol>
  *
@@ -106,11 +107,10 @@ public class AzureBlobContainerClientProducer {
      *         (no network call has been made at this point)
      */
     protected BlobContainerClient buildBlobContainerClient(final AzureBlobConfiguration configuration) {
-        final String connectionString = configuration.getConnectionString();
         final BlobServiceClient blobServiceClient;
-        if (connectionString != null && !connectionString.isBlank()) {
+        if (configuration.hasConnectionString()) {
             blobServiceClient = new BlobServiceClientBuilder()
-                    .connectionString(connectionString)
+                    .connectionString(configuration.getConnectionString())
                     .buildClient();
         } else {
             blobServiceClient = new BlobServiceClientBuilder()

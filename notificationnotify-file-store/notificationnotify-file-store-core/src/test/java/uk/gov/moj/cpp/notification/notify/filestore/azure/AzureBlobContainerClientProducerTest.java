@@ -104,6 +104,7 @@ public class AzureBlobContainerClientProducerTest {
 
     @Test
     public void shouldBuildClientFromConnectionString() {
+        when(azureBlobConfiguration.hasConnectionString()).thenReturn(true);
         when(azureBlobConfiguration.getConnectionString()).thenReturn(AZURITE_CONNECTION_STRING);
         when(azureBlobConfiguration.getContainerName()).thenReturn("test-container");
 
@@ -114,20 +115,7 @@ public class AzureBlobContainerClientProducerTest {
     }
 
     @Test
-    public void shouldBuildClientUsingDefaultAzureCredentialWhenConnectionStringIsBlank() {
-        when(azureBlobConfiguration.getConnectionString()).thenReturn("");
-        when(azureBlobConfiguration.getEndpoint()).thenReturn("https://devstoreaccount1.blob.core.windows.net");
-        when(azureBlobConfiguration.getContainerName()).thenReturn("test-container");
-
-        final BlobContainerClient blobContainerClient = producer.buildBlobContainerClient(azureBlobConfiguration);
-
-        assertThat(blobContainerClient, is(notNullValue()));
-        assertThat(blobContainerClient.getBlobContainerName(), is("test-container"));
-    }
-
-    @Test
-    public void shouldBuildClientUsingDefaultAzureCredentialWhenConnectionStringIsNull() {
-        when(azureBlobConfiguration.getConnectionString()).thenReturn(null);
+    public void shouldBuildClientUsingDefaultAzureCredentialWhenNoConnectionStringPresent() {
         when(azureBlobConfiguration.getEndpoint()).thenReturn("https://devstoreaccount1.blob.core.windows.net");
         when(azureBlobConfiguration.getContainerName()).thenReturn("test-container");
 

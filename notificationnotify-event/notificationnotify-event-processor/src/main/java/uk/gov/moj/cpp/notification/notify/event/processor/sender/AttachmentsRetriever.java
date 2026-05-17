@@ -11,7 +11,6 @@ import uk.gov.moj.cpp.notification.notify.filestore.azure.StoragePath;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -19,6 +18,7 @@ import javax.inject.Inject;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobProperties;
 import com.azure.storage.blob.models.BlobRange;
 import com.azure.storage.blob.models.BlobStorageException;
 
@@ -30,6 +30,10 @@ public class AttachmentsRetriever {
 
     private static final StoragePath BLOB_PATH = internal();
     private static final long MAX_BLOB_SIZE_BYTES = 1_000_000_000L;
+    // 15 MB — hard limit imposed by GOV.UK Notify and Office365. Files larger than this cannot be
+    // sent as email attachments regardless of what this service does. Raising this value will cause
+    // attachments to fail silently at the email layer. Must match EmailSender.BYTE_LENGTH_15_MB.
+    private static final long MAX_DOWNLOAD_BYTES = 15_728_640L;
 
     @Inject
     @SuppressWarnings("squid:S1312")
@@ -58,8 +62,18 @@ public class AttachmentsRetriever {
                 logger.debug("Successfully looked up file '{}' for notificationId: {}", fileId, notificationId);
             }
 
-            final Map<String, String> metadata = blobClient.getProperties().getMetadata();
-            final String filename = metadata.getOrDefault("filename", fileId.toString());
+            final BlobProperties blobProperties = blobClient.getProperties();
+            final long blobSize = blobProperties.getBlobSize();
+
+            if (blobSize > MAX_DOWNLOAD_BYTES) {
+                final String errorMessage = format(
+                        "File attachment with id '%s' for notification '%s' exceeds maximum download size: %d bytes",
+                        fileId, notificationId, blobSize);
+                logger.error(errorMessage);
+                return new ErrorResponse(errorMessage, HttpStatus.SC_REQUEST_TOO_LONG);
+            }
+
+            final String filename = blobProperties.getMetadata().getOrDefault("filename", fileId.toString());
 
             final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             blobClient.downloadStreamWithResponse(outputStream, new BlobRange(0, MAX_BLOB_SIZE_BYTES), null, null, false, null, null);

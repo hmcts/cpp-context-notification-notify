@@ -23,6 +23,27 @@ public class AzureBlobConfigurationTest {
     }
 
     @Test
+    public void shouldReturnTrueForHasConnectionStringWhenRealConnectionStringSet() {
+        setField(azureBlobConfiguration, "connectionString", "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1");
+
+        assertThat(azureBlobConfiguration.hasConnectionString(), is(true));
+    }
+
+    @Test
+    public void shouldReturnFalseForHasConnectionStringWhenSentinelValue() {
+        setField(azureBlobConfiguration, "connectionString", "DefaultAzureCredential");
+
+        assertThat(azureBlobConfiguration.hasConnectionString(), is(false));
+    }
+
+    @Test
+    public void shouldReturnFalseForHasConnectionStringWhenBlank() {
+        setField(azureBlobConfiguration, "connectionString", "");
+
+        assertThat(azureBlobConfiguration.hasConnectionString(), is(false));
+    }
+
+    @Test
     public void shouldReturnEndpoint() {
         setField(azureBlobConfiguration, "endpoint", "https://mystorage.blob.core.windows.net");
 

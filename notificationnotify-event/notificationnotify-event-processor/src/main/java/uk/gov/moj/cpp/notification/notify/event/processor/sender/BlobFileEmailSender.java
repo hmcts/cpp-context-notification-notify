@@ -88,7 +88,7 @@ public class BlobFileEmailSender {
         }
     }
 
-    private void sendViaSmtp(final UUID correlationId,
+    protected void sendViaSmtp(final UUID correlationId,
                               final String recipientEmail,
                               final String subject,
                               final String filename,
@@ -115,10 +115,10 @@ public class BlobFileEmailSender {
         Transport.send(message);
     }
 
-    private BlobClient buildBlobClient(final String sourceBlobUri) {
-        final String connectionString = azureBlobConfiguration.getConnectionString();
-        if (connectionString != null && !connectionString.isBlank()) {
-            return buildBlobClientFromConnectionString(connectionString, sourceBlobUri);
+    protected BlobClient buildBlobClient(final String sourceBlobUri) {
+        if (azureBlobConfiguration.hasConnectionString()) {
+            return buildBlobClientFromConnectionString(
+                    azureBlobConfiguration.getConnectionString(), sourceBlobUri);
         }
         return new BlobClientBuilder()
                 .endpoint(sourceBlobUri)
