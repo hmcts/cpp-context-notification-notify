@@ -1,18 +1,18 @@
 package uk.gov.moj.cpp.notification.notify.filestore.azure;
 
-import com.azure.core.exception.HttpResponseException;
-import com.azure.identity.DefaultAzureCredentialBuilder;
-import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.azure.storage.blob.models.BlobStorageException;
-
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
+import static java.lang.String.format;
+
+import com.azure.core.exception.HttpResponseException;
+import com.azure.core.http.jdk.httpclient.JdkHttpClientBuilder;
+import com.azure.identity.DefaultAzureCredentialBuilder;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
 import org.slf4j.Logger;
 
 /**
@@ -46,6 +46,8 @@ import org.slf4j.Logger;
 @ApplicationScoped
 public class AzureBlobContainerClientProducer {
 
+    private static final int HTTP_CONFLICT = 409;
+
     @Inject
     private Logger logger;
 
@@ -66,15 +68,13 @@ public class AzureBlobContainerClientProducer {
         blobContainerClient = buildBlobContainerClient(azureBlobConfiguration);
         try {
             blobContainerClient.createIfNotExists();
-        } catch (final BlobStorageException e) {
-            logger.warn("createIfNotExists failed for container '{}' — assuming it already exists: {}",
-                    azureBlobConfiguration.getContainerName(), e.getMessage());
         } catch (final HttpResponseException e) {
-            if (e.getResponse() != null && e.getResponse().getStatusCode() == 409) {
-                logger.warn("createIfNotExists failed for container '{}' — assuming it already exists: {}",
-                        azureBlobConfiguration.getContainerName(), e.getMessage());
+            if (e.getResponse() != null && e.getResponse().getStatusCode() == HTTP_CONFLICT) {
+                logger.warn("BlobContainerClient.createIfNotExists returned 409 Conflict for container '{}' — container already exists",
+                        azureBlobConfiguration.getContainerName());
             } else {
-                throw e;
+                throw new AzureBlobContainerClientCreationException(
+                        format("Failed to create BlobContainerClient for container '%s'", azureBlobConfiguration.getContainerName()), e);
             }
         }
     }
@@ -84,8 +84,8 @@ public class AzureBlobContainerClientProducer {
      *
      * <p>{@link BlobContainerClient} is a {@code final} class — Weld cannot subclass it to
      * create a proxy, so {@code @ApplicationScoped} on this producer method would fail with
-     * {@code WELD-001410} at deployment. {@code @Dependent} injects the real instance directly.
-     * The single shared instance is created once in {@link #initialise()} and returned here.
+     * {@code WELD-001410} at deployment. {@code @Dependent} injects the real instance directly. The
+     * single shared instance is created once in {@link #initialise()} and returned here.
      *
      * @return the configured {@link BlobContainerClient}
      */
@@ -101,23 +101,29 @@ public class AzureBlobContainerClientProducer {
      * <p>{@code protected} visibility allows the method to be overridden in unit tests via a
      * Mockito spy so that test code can substitute a mock client without making network calls.
      *
-     * @param configuration JNDI-backed configuration supplying connection string, endpoint,
-     *                      and container name
-     * @return a {@link BlobContainerClient} targeting the configured container
-     *         (no network call has been made at this point)
+     * @param configuration JNDI-backed configuration supplying connection string, endpoint, and
+     *                      container name
+     * @return a {@link BlobContainerClient} targeting the configured container (no network call has
+     * been made at this point)
      */
     protected BlobContainerClient buildBlobContainerClient(final AzureBlobConfiguration configuration) {
-        final BlobServiceClient blobServiceClient;
+        final JdkHttpClientBuilder httpClientBuilder = new JdkHttpClientBuilder()
+                .connectionTimeout(configuration.getConnectionTimeout())
+                .responseTimeout(configuration.getResponseTimeout());
+
         if (configuration.hasConnectionString()) {
-            blobServiceClient = new BlobServiceClientBuilder()
+            return new BlobServiceClientBuilder()
+                    .httpClient(httpClientBuilder.build())
                     .connectionString(configuration.getConnectionString())
-                    .buildClient();
-        } else {
-            blobServiceClient = new BlobServiceClientBuilder()
-                    .credential(new DefaultAzureCredentialBuilder().build())
-                    .endpoint(configuration.getEndpoint())
-                    .buildClient();
+                    .buildClient()
+                    .getBlobContainerClient(configuration.getContainerName());
         }
-        return blobServiceClient.getBlobContainerClient(configuration.getContainerName());
+
+        return new BlobServiceClientBuilder()
+                .httpClient(httpClientBuilder.build())
+                .credential(new DefaultAzureCredentialBuilder().build())
+                .endpoint(configuration.getEndpoint())
+                .buildClient()
+                .getBlobContainerClient(configuration.getContainerName());
     }
 }

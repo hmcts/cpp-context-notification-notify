@@ -4,12 +4,14 @@ import static java.util.UUID.fromString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.UUID;
 
 import com.azure.core.util.polling.SyncPoller;
@@ -44,6 +46,9 @@ public class FileIngestorTest {
     private BlobClient blobClient;
 
     @Mock
+    private AzureBlobConfiguration azureBlobConfiguration;
+
+    @Mock
     private SyncPoller<BlobCopyInfo, Void> syncPoller;
 
     @Mock
@@ -72,10 +77,11 @@ public class FileIngestorTest {
     public void shouldWaitForCopyCompletionBeforeLogging() {
         when(blobContainerClient.getBlobClient("internal/" + FILE_ID)).thenReturn(blobClient);
         when(blobClient.beginCopy(isA(BlobBeginCopyOptions.class))).thenReturn(syncPoller);
+        when(azureBlobConfiguration.getTransferTimeout()).thenReturn(Duration.ofSeconds(300));
 
         fileIngestor.ingest(StoragePath.internal(), FILE_ID, CORRELATION_ID, FILENAME, SOURCE_URI);
 
-        verify(syncPoller).waitForCompletion();
+        verify(syncPoller).waitForCompletion(eq(Duration.ofSeconds(300)));
         verify(logger).info("Ingested blob '{}' sourceUri='{}' correlationId='{}' filename='{}'",
                 "internal/" + FILE_ID, SOURCE_URI, CORRELATION_ID, FILENAME);
     }

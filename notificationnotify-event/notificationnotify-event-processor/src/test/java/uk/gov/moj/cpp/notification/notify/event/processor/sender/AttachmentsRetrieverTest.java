@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
@@ -13,8 +14,10 @@ import static org.mockito.Mockito.when;
 import uk.gov.moj.cpp.notification.notify.event.processor.response.DownloadResponse;
 import uk.gov.moj.cpp.notification.notify.event.processor.response.ErrorResponse;
 import uk.gov.moj.cpp.notification.notify.event.processor.response.NotificationResponse;
+import uk.gov.moj.cpp.notification.notify.filestore.azure.AzureBlobConfiguration;
 
 import java.io.OutputStream;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -24,6 +27,7 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobProperties;
 import com.azure.storage.blob.models.BlobRange;
 import com.azure.storage.blob.models.BlobStorageException;
+import com.azure.storage.blob.models.DownloadRetryOptions;
 
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
@@ -49,6 +53,9 @@ public class AttachmentsRetrieverTest {
     @Mock
     private BlobProperties blobProperties;
 
+    @Mock
+    private AzureBlobConfiguration azureBlobConfiguration;
+
     @InjectMocks
     private AttachmentsRetriever attachmentsRetriever;
 
@@ -67,6 +74,7 @@ public class AttachmentsRetrieverTest {
         when(blobProperties.getBlobSize()).thenReturn((long) content.length);
         when(blobProperties.getMetadata()).thenReturn(metadata);
 
+        when(azureBlobConfiguration.getTransferTimeout()).thenReturn(Duration.ofSeconds(300));
         final ArgumentCaptor<OutputStream> outputStreamCaptor = ArgumentCaptor.forClass(OutputStream.class);
         final ArgumentCaptor<BlobRange> blobRangeCaptor = ArgumentCaptor.forClass(BlobRange.class);
         doAnswer(invocation -> {
@@ -75,7 +83,7 @@ public class AttachmentsRetrieverTest {
             return null;
         }).when(blobClient).downloadStreamWithResponse(
                 outputStreamCaptor.capture(), blobRangeCaptor.capture(),
-                isNull(), isNull(), eq(false), isNull(), isNull());
+                isA(DownloadRetryOptions.class), isNull(), eq(false), eq(Duration.ofSeconds(300)), isNull());
 
         final NotificationResponse attachment = attachmentsRetriever.getAttachment(notificationId, fileId);
 

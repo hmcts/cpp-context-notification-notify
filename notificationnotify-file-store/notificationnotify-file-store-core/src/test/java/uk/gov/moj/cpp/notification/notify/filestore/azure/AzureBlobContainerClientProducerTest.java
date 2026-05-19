@@ -3,6 +3,7 @@ package uk.gov.moj.cpp.notification.notify.filestore.azure;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -10,10 +11,11 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
+
 import com.azure.core.exception.HttpResponseException;
 import com.azure.core.http.HttpResponse;
 import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.models.BlobStorageException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,24 +66,6 @@ public class AzureBlobContainerClientProducerTest {
     }
 
     @Test
-    public void shouldLogWarningWhenCreateIfNotExistsThrows() {
-        final BlobContainerClient containerClient = mock(BlobContainerClient.class);
-        final AzureBlobContainerClientProducer spiedProducer = spy(producer);
-        doReturn(containerClient).when(spiedProducer).buildBlobContainerClient(azureBlobConfiguration);
-        when(azureBlobConfiguration.getContainerName()).thenReturn("notificationnotify-files");
-        final BlobStorageException blobStorageException = mock(BlobStorageException.class);
-        when(blobStorageException.getMessage()).thenReturn("Container already exists");
-        doThrow(blobStorageException).when(containerClient).createIfNotExists();
-
-        spiedProducer.initialise();
-
-        verify(logger).warn(
-                "createIfNotExists failed for container '{}' — assuming it already exists: {}",
-                "notificationnotify-files",
-                "Container already exists");
-    }
-
-    @Test
     public void shouldLogWarningWhenCreateIfNotExistsThrowsHttpResponseExceptionWith409() {
         final BlobContainerClient containerClient = mock(BlobContainerClient.class);
         final AzureBlobContainerClientProducer spiedProducer = spy(producer);
@@ -91,15 +75,26 @@ public class AzureBlobContainerClientProducerTest {
         final HttpResponse httpResponse = mock(HttpResponse.class);
         when(httpResponseException.getResponse()).thenReturn(httpResponse);
         when(httpResponse.getStatusCode()).thenReturn(409);
-        when(httpResponseException.getMessage()).thenReturn("ContainerAlreadyExists (XML response from Azurite)");
         doThrow(httpResponseException).when(containerClient).createIfNotExists();
 
         spiedProducer.initialise();
 
         verify(logger).warn(
-                "createIfNotExists failed for container '{}' — assuming it already exists: {}",
-                "notificationnotify-files",
-                "ContainerAlreadyExists (XML response from Azurite)");
+                "BlobContainerClient.createIfNotExists returned 409 Conflict for container '{}' — container already exists",
+                "notificationnotify-files");
+    }
+
+    @Test
+    public void shouldRethrowWhenCreateIfNotExistsThrowsHttpResponseExceptionWithNon409() {
+        final BlobContainerClient containerClient = mock(BlobContainerClient.class);
+        final AzureBlobContainerClientProducer spiedProducer = spy(producer);
+        doReturn(containerClient).when(spiedProducer).buildBlobContainerClient(azureBlobConfiguration);
+        final HttpResponse httpResponse = mock(HttpResponse.class);
+        when(httpResponse.getStatusCode()).thenReturn(500);
+        final HttpResponseException httpResponseException = new HttpResponseException("Internal Server Error", httpResponse);
+        doThrow(httpResponseException).when(containerClient).createIfNotExists();
+
+        assertThrows(AzureBlobContainerClientCreationException.class, () -> spiedProducer.initialise());
     }
 
     @Test
@@ -107,6 +102,8 @@ public class AzureBlobContainerClientProducerTest {
         when(azureBlobConfiguration.hasConnectionString()).thenReturn(true);
         when(azureBlobConfiguration.getConnectionString()).thenReturn(AZURITE_CONNECTION_STRING);
         when(azureBlobConfiguration.getContainerName()).thenReturn("test-container");
+        when(azureBlobConfiguration.getConnectionTimeout()).thenReturn(Duration.ofSeconds(10));
+        when(azureBlobConfiguration.getResponseTimeout()).thenReturn(Duration.ofSeconds(30));
 
         final BlobContainerClient blobContainerClient = producer.buildBlobContainerClient(azureBlobConfiguration);
 
@@ -118,6 +115,8 @@ public class AzureBlobContainerClientProducerTest {
     public void shouldBuildClientUsingDefaultAzureCredentialWhenNoConnectionStringPresent() {
         when(azureBlobConfiguration.getEndpoint()).thenReturn("https://devstoreaccount1.blob.core.windows.net");
         when(azureBlobConfiguration.getContainerName()).thenReturn("test-container");
+        when(azureBlobConfiguration.getConnectionTimeout()).thenReturn(Duration.ofSeconds(10));
+        when(azureBlobConfiguration.getResponseTimeout()).thenReturn(Duration.ofSeconds(30));
 
         final BlobContainerClient blobContainerClient = producer.buildBlobContainerClient(azureBlobConfiguration);
 

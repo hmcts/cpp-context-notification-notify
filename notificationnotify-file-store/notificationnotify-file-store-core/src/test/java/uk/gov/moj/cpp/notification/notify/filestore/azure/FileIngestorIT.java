@@ -47,9 +47,15 @@ public class FileIngestorIT {
         destBlobContainerClient = blobServiceClient.getBlobContainerClient(DEST_CONTAINER);
         destBlobContainerClient.createIfNotExists();
 
+        final AzureBlobConfiguration azureBlobConfiguration = new AzureBlobConfiguration();
+        setField(azureBlobConfiguration, "connectionTimeoutSeconds", "10");
+        setField(azureBlobConfiguration, "responseTimeoutSeconds", "30");
+        setField(azureBlobConfiguration, "transferTimeoutSeconds", "300");
+
         fileIngestor = new FileIngestor();
         setField(fileIngestor, "blobContainerClient", destBlobContainerClient);
         setField(fileIngestor, "logger", LoggerFactory.getLogger(FileIngestor.class));
+        setField(fileIngestor, "azureBlobConfiguration", azureBlobConfiguration);
     }
 
     @AfterEach

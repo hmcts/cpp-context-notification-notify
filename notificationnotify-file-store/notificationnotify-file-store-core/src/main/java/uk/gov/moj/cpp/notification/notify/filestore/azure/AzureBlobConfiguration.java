@@ -1,6 +1,12 @@
 package uk.gov.moj.cpp.notification.notify.filestore.azure;
 
+import static java.lang.Long.parseLong;
+import static java.time.Duration.ofSeconds;
+
 import uk.gov.justice.services.common.configuration.Value;
+import uk.gov.justice.services.common.util.LazyValue;
+
+import java.time.Duration;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -26,6 +32,7 @@ import javax.inject.Inject;
  * <p>See {@code patterns/jndi.md} in {@code pe_arch_design_docs} for the full
  * per-environment reference.
  */
+@SuppressWarnings("java:S6813")
 @ApplicationScoped
 public class AzureBlobConfiguration {
 
@@ -40,6 +47,23 @@ public class AzureBlobConfiguration {
     @Inject
     @Value(key = "azure.filestore.container-name")
     private String containerName;
+
+    @Inject
+    @Value(key = "azure.filestore.connection-timeout-seconds", defaultValue = "10")
+    private String connectionTimeoutSeconds;
+
+    @Inject
+    @Value(key = "azure.filestore.response-timeout-seconds", defaultValue = "30")
+    private String responseTimeoutSeconds;
+
+    @Inject
+    @Value(key = "azure.filestore.transfer-timeout-seconds", defaultValue = "300")
+    private String transferTimeoutSeconds;
+
+    private final LazyValue hasConnectionStringLazyValue = new LazyValue();
+    private final LazyValue connectionTimeoutLazyValue = new LazyValue();
+    private final LazyValue responseTimeoutLazyValue = new LazyValue();
+    private final LazyValue transferTimeoutLazyValue = new LazyValue();
 
     /**
      * Returns the raw {@code azure.filestore.connection-string} JNDI value.
@@ -71,7 +95,7 @@ public class AzureBlobConfiguration {
      *         integration tests)
      */
     public boolean hasConnectionString() {
-        return connectionString != null && !connectionString.isBlank() && !"DefaultAzureCredential".equals(connectionString);
+        return hasConnectionStringLazyValue.createIfAbsent(() -> connectionString != null && !connectionString.isBlank() && !"DefaultAzureCredential".equals(connectionString));
     }
 
     /**
@@ -100,5 +124,43 @@ public class AzureBlobConfiguration {
      */
     public String getContainerName() {
         return containerName;
+    }
+
+    /**
+     * Timeout for establishing a TCP connection to the Azure Storage endpoint.
+     *
+     * <p>Configurable via JNDI key {@code azure.filestore.connection-timeout-seconds}.
+     * Default 10 s.
+     *
+     * @return the TCP connection timeout
+     */
+    public Duration getConnectionTimeout() {
+        return connectionTimeoutLazyValue.createIfAbsent(() -> ofSeconds(parseLong(connectionTimeoutSeconds)));
+    }
+
+    /**
+     * Timeout for receiving response headers after a request is sent.
+     *
+     * <p>Covers control-plane calls ({@code exists()}, {@code getProperties()}).
+     * Configurable via JNDI key {@code azure.filestore.response-timeout-seconds}.
+     * Default 30 s.
+     *
+     * @return the response header timeout
+     */
+    public Duration getResponseTimeout() {
+        return responseTimeoutLazyValue.createIfAbsent(() -> ofSeconds(parseLong(responseTimeoutSeconds)));
+    }
+
+    /**
+     * Overall wall-clock deadline for data transfer operations — upload body,
+     * download body, and server-side copy.
+     *
+     * <p>Configurable via JNDI key {@code azure.filestore.transfer-timeout-seconds}.
+     * Default 300 s. Raise for services handling blobs significantly larger than a few MB.
+     *
+     * @return the transfer timeout
+     */
+    public Duration getTransferTimeout() {
+        return transferTimeoutLazyValue.createIfAbsent(() -> ofSeconds(parseLong(transferTimeoutSeconds)));
     }
 }

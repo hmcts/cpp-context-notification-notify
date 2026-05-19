@@ -10,6 +10,8 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobItem;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,6 +46,9 @@ public class FileStorerIT {
         fileStorer = new FileStorer();
         setField(fileStorer, "blobContainerClient", blobContainerClient);
         setField(fileStorer, "logger", LoggerFactory.getLogger(FileStorer.class));
+        final AzureBlobConfiguration azureBlobConfiguration = new AzureBlobConfiguration();
+        setField(azureBlobConfiguration, "transferTimeoutSeconds", "300");
+        setField(fileStorer, "azureBlobConfiguration", azureBlobConfiguration);
     }
 
     @AfterEach
@@ -53,7 +58,7 @@ public class FileStorerIT {
 
     @Test
     public void shouldStoreContentUnderInternalPrefixAndReturnFileId() {
-        final byte[] content = "attachment bytes".getBytes();
+        final InputStream content = new ByteArrayInputStream("attachment bytes".getBytes());
 
         final UUID fileId = fileStorer.store(StoragePath.internal(), CORRELATION_ID, "report.pdf", content);
 
@@ -63,7 +68,7 @@ public class FileStorerIT {
 
     @Test
     public void shouldSetCorrelationIdMetadataOnBlob() {
-        final byte[] content = "doc bytes".getBytes();
+        final InputStream content = new ByteArrayInputStream("doc bytes".getBytes());
 
         final UUID fileId = fileStorer.store(StoragePath.internal(), CORRELATION_ID, "letter.pdf", content);
 
@@ -76,7 +81,7 @@ public class FileStorerIT {
 
     @Test
     public void shouldSetFilenameMetadataOnBlob() {
-        final byte[] content = "doc bytes".getBytes();
+        final InputStream content = new ByteArrayInputStream("doc bytes".getBytes());
 
         final UUID fileId = fileStorer.store(StoragePath.internal(), CORRELATION_ID, "letter.pdf", content);
 
@@ -89,7 +94,7 @@ public class FileStorerIT {
 
     @Test
     public void shouldStoreContentUnderPublishedPrefix() {
-        final byte[] content = "report bytes".getBytes();
+        final InputStream content = new ByteArrayInputStream("report bytes".getBytes());
 
         final UUID fileId = fileStorer.store(StoragePath.published("reports"), CORRELATION_ID, "monthly.csv", content);
 
@@ -98,10 +103,8 @@ public class FileStorerIT {
 
     @Test
     public void shouldAssignDistinctFileIdPerCall() {
-        final byte[] content = "bytes".getBytes();
-
-        final UUID fileIdOne = fileStorer.store(StoragePath.internal(), CORRELATION_ID, "a.pdf", content);
-        final UUID fileIdTwo = fileStorer.store(StoragePath.internal(), CORRELATION_ID, "b.pdf", content);
+        final UUID fileIdOne = fileStorer.store(StoragePath.internal(), CORRELATION_ID, "a.pdf", new ByteArrayInputStream("bytes".getBytes()));
+        final UUID fileIdTwo = fileStorer.store(StoragePath.internal(), CORRELATION_ID, "b.pdf", new ByteArrayInputStream("bytes".getBytes()));
 
         assertThat(fileIdOne.equals(fileIdTwo), is(false));
         final List<BlobItem> blobs = blobContainerClient.listBlobsByHierarchy("internal/").stream().toList();

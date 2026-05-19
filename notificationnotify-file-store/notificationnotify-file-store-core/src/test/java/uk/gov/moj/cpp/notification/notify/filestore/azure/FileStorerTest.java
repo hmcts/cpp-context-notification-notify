@@ -6,7 +6,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -15,6 +14,9 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.time.Duration;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -38,6 +40,9 @@ public class FileStorerTest {
     private BlobClient blobClient;
 
     @Mock
+    private AzureBlobConfiguration azureBlobConfiguration;
+
+    @Mock
     private Logger logger;
 
     @InjectMocks
@@ -48,21 +53,22 @@ public class FileStorerTest {
 
     @Test
     public void shouldUploadBlobWithCorrelationIdAndFilenameMetadata() {
-        final byte[] content = "attachment content".getBytes();
+        final InputStream content = new ByteArrayInputStream("attachment content".getBytes());
         when(blobContainerClient.getBlobClient(startsWith("internal/"))).thenReturn(blobClient);
+        when(azureBlobConfiguration.getTransferTimeout()).thenReturn(Duration.ofSeconds(300));
 
         final UUID fileId = fileStorer.store(StoragePath.internal(), CORRELATION_ID, "report.pdf", content);
 
         assertThat(fileId, notNullValue());
         verify(blobContainerClient).getBlobClient("internal/" + fileId);
-        verify(blobClient).uploadWithResponse(uploadOptionsCaptor.capture(), isNull(), eq(NONE));
+        verify(blobClient).uploadWithResponse(uploadOptionsCaptor.capture(), eq(Duration.ofSeconds(300)), eq(NONE));
         assertThat(uploadOptionsCaptor.getValue().getMetadata().get("correlation_id"), is(CORRELATION_ID.toString()));
         assertThat(uploadOptionsCaptor.getValue().getMetadata().get("filename"), is("report.pdf"));
     }
 
     @Test
     public void shouldStoreBlobUnderPublishedPathPrefix() {
-        final byte[] content = "report bytes".getBytes();
+        final InputStream content = new ByteArrayInputStream("report bytes".getBytes());
         when(blobContainerClient.getBlobClient(startsWith("published/reports/"))).thenReturn(blobClient);
 
         final UUID fileId = fileStorer.store(StoragePath.published("reports"), CORRELATION_ID, "monthly.csv", content);

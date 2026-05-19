@@ -101,7 +101,7 @@ public class PocaEmailsTaskTest {
 
         final UUID fileIdOne = randomUUID();
         final UUID fileIdTwo = randomUUID();
-        when(fileStorer.store(isA(StoragePath.class), isA(UUID.class), eq("iw033-eng-new.docx"), isA(byte[].class)))
+        when(fileStorer.store(isA(StoragePath.class), isA(UUID.class), eq("iw033-eng-new.docx"), isA(InputStream.class)))
                 .thenReturn(fileIdOne, fileIdTwo);
 
         final ExecutionInfo actualExecutionInfo = pocaEmailsTask.execute(executionInfo);
@@ -127,7 +127,7 @@ public class PocaEmailsTaskTest {
         final MailServerCredentials mailServerCredentials = new MailServerCredentials();
         mailServerCredentials.setServer(MAIL_SERVER);
         when(executionInfo.getJobData()).thenReturn(objectToJsonObjectConverter.convert(mailServerCredentials));
-        when(fileStorer.store(isA(StoragePath.class), isA(UUID.class), eq("iw033-eng-new.docx"), isA(byte[].class)))
+        when(fileStorer.store(isA(StoragePath.class), isA(UUID.class), eq("iw033-eng-new.docx"), isA(InputStream.class)))
                 .thenThrow(mock(BlobStorageException.class))
                 .thenThrow(mock(BlobStorageException.class))
                 .thenThrow(mock(BlobStorageException.class));
@@ -158,7 +158,7 @@ public class PocaEmailsTaskTest {
         when(executionInfo.getJobData()).thenReturn(objectToJsonObjectConverter.convert(mailServerCredentials));
 
         final UUID expectedFileIdTwo = randomUUID();
-        when(fileStorer.store(isA(StoragePath.class), isA(UUID.class), eq("iw033-eng-new.docx"), isA(byte[].class)))
+        when(fileStorer.store(isA(StoragePath.class), isA(UUID.class), eq("iw033-eng-new.docx"), isA(InputStream.class)))
                 .thenThrow(mock(BlobStorageException.class))
                 .thenThrow(mock(BlobStorageException.class))
                 .thenThrow(mock(BlobStorageException.class))

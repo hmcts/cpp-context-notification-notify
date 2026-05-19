@@ -21,6 +21,7 @@ import uk.gov.moj.cpp.notification.notify.event.processor.task.domain.MailServer
 import uk.gov.moj.cpp.notification.notify.event.processor.task.handlers.EmailHandlerFactory;
 import uk.gov.moj.cpp.notification.notify.event.processor.task.handlers.PocaEmailHandler;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -107,7 +108,7 @@ public class PocaEmailsTask implements ExecutableTask {
 
         for (int count = 0; count < maxRetries; count++) {
             try {
-                return fileStorer.store(BLOB_PATH, correlationId, emailDetail.getFileName(), documentBytes);
+                return fileStorer.store(BLOB_PATH, correlationId, emailDetail.getFileName(), new ByteArrayInputStream(documentBytes));
             } catch (final BlobStorageException ex) {
                 LOGGER.warn("Upload to blob storage failed on attempt {} of {} for filename='{}': {}",
                         count + 1, maxRetries, emailDetail.getFileName(), ex.getMessage());

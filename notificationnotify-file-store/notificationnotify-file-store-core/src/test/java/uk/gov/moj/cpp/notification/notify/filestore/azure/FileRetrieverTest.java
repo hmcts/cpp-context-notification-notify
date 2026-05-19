@@ -3,20 +3,21 @@ package uk.gov.moj.cpp.notification.notify.filestore.azure;
 import static java.util.UUID.fromString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.doAnswer;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.models.BlobRange;
-
-import java.io.OutputStream;
+import java.io.InputStream;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobStorageException;
+import com.azure.storage.blob.specialized.BlobInputStream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,51 +44,47 @@ public class FileRetrieverTest {
     private FileRetriever fileRetriever;
 
     @Test
-    public void shouldReturnEmptyOptionalWhenBlobDoesNotExist() {
+    public void shouldReturnEmptyWhenBlobReturns404() {
         when(blobContainerClient.getBlobClient("internal/" + FILE_ID)).thenReturn(blobClient);
-        when(blobClient.exists()).thenReturn(false);
+        final BlobStorageException blobStorageException = mock(BlobStorageException.class);
+        when(blobStorageException.getStatusCode()).thenReturn(404);
+        doThrow(blobStorageException).when(blobClient).openInputStream();
 
-        final Optional<byte[]> result = fileRetriever.retrieve(StoragePath.internal(), FILE_ID);
+        final Optional<InputStream> result = fileRetriever.retrieve(StoragePath.internal(), FILE_ID);
 
         assertThat(result.isPresent(), is(false));
     }
 
     @Test
-    public void shouldReturnBytesWhenBlobExists() {
-        final byte[] expectedBytes = "blob content".getBytes();
+    public void shouldReturnStreamWhenBlobExists() {
+        final BlobInputStream blobInputStream = mock(BlobInputStream.class);
         when(blobContainerClient.getBlobClient("internal/" + FILE_ID)).thenReturn(blobClient);
-        when(blobClient.exists()).thenReturn(true);
-        doAnswer(invocation -> {
-            final OutputStream outputStream = invocation.getArgument(0);
-            outputStream.write(expectedBytes);
-            return null;
-        }).when(blobClient).downloadStreamWithResponse(
-                isA(OutputStream.class), isA(BlobRange.class),
-                isNull(), isNull(), eq(false), isNull(), isNull());
+        doReturn(blobInputStream).when(blobClient).openInputStream();
 
-        final Optional<byte[]> result = fileRetriever.retrieve(StoragePath.internal(), FILE_ID);
+        final Optional<InputStream> result = fileRetriever.retrieve(StoragePath.internal(), FILE_ID);
 
         assertThat(result.isPresent(), is(true));
-        assertThat(result.get(), is(expectedBytes));
+        assertThat(result.get(), is((InputStream) blobInputStream));
+    }
+
+    @Test
+    public void shouldRethrowWhenBlobStorageExceptionIsNotNotFound() {
+        when(blobContainerClient.getBlobClient("internal/" + FILE_ID)).thenReturn(blobClient);
+        final BlobStorageException blobStorageException = mock(BlobStorageException.class);
+        when(blobStorageException.getStatusCode()).thenReturn(500);
+        doThrow(blobStorageException).when(blobClient).openInputStream();
+
+        assertThrows(BlobStorageException.class, () -> fileRetriever.retrieve(StoragePath.internal(), FILE_ID));
     }
 
     @Test
     public void shouldUseCorrectBlobPathForPublishedStoragePath() {
+        final BlobInputStream blobInputStream = mock(BlobInputStream.class);
         when(blobContainerClient.getBlobClient("published/reports/" + FILE_ID)).thenReturn(blobClient);
-        when(blobClient.exists()).thenReturn(false);
+        doReturn(blobInputStream).when(blobClient).openInputStream();
 
         fileRetriever.retrieve(StoragePath.published("reports"), FILE_ID);
 
         verify(blobContainerClient).getBlobClient("published/reports/" + FILE_ID);
-    }
-
-    @Test
-    public void shouldReturnEmptyOptionalWhenBlobDoesNotExistForInboxPath() {
-        when(blobContainerClient.getBlobClient("inbox/sdg-output/" + FILE_ID)).thenReturn(blobClient);
-        when(blobClient.exists()).thenReturn(false);
-
-        final Optional<byte[]> result = fileRetriever.retrieve(StoragePath.inbox("sdg-output"), FILE_ID);
-
-        assertThat(result.isPresent(), is(false));
     }
 }

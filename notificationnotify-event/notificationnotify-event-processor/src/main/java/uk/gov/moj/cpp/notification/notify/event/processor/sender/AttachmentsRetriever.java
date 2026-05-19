@@ -7,6 +7,7 @@ import uk.gov.moj.cpp.notification.notify.event.processor.download.SuccessfulDoc
 import uk.gov.moj.cpp.notification.notify.event.processor.response.DownloadResponse;
 import uk.gov.moj.cpp.notification.notify.event.processor.response.ErrorResponse;
 import uk.gov.moj.cpp.notification.notify.event.processor.response.NotificationResponse;
+import uk.gov.moj.cpp.notification.notify.filestore.azure.AzureBlobConfiguration;
 import uk.gov.moj.cpp.notification.notify.filestore.azure.StoragePath;
 
 import java.io.ByteArrayInputStream;
@@ -21,6 +22,7 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobProperties;
 import com.azure.storage.blob.models.BlobRange;
 import com.azure.storage.blob.models.BlobStorageException;
+import com.azure.storage.blob.models.DownloadRetryOptions;
 
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -41,6 +43,9 @@ public class AttachmentsRetriever {
 
     @Inject
     private BlobContainerClient blobContainerClient;
+
+    @Inject
+    private AzureBlobConfiguration azureBlobConfiguration;
 
     @SuppressWarnings("squid:S1166")
     public NotificationResponse getAttachment(final UUID notificationId, final UUID fileId) {
@@ -76,7 +81,9 @@ public class AttachmentsRetriever {
             final String filename = blobProperties.getMetadata().getOrDefault("filename", fileId.toString());
 
             final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            blobClient.downloadStreamWithResponse(outputStream, new BlobRange(0, MAX_BLOB_SIZE_BYTES), null, null, false, null, null);
+            blobClient.downloadStreamWithResponse(outputStream, new BlobRange(0, MAX_BLOB_SIZE_BYTES),
+                    new DownloadRetryOptions().setMaxRetryRequests(3), null, false,
+                    azureBlobConfiguration.getTransferTimeout(), null);
             final byte[] bytes = outputStream.toByteArray();
 
             return new DownloadResponse(new SuccessfulDocumentDownload(

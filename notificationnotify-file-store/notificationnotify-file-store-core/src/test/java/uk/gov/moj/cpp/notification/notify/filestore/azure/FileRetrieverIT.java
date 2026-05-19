@@ -11,6 +11,8 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -53,52 +55,58 @@ public class FileRetrieverIT {
     }
 
     @Test
-    public void shouldRetrieveStoredBlobContent() {
+    public void shouldRetrieveStoredBlobContent() throws Exception {
         final byte[] content = "retrieved content".getBytes();
         final UUID fileId = UUID.randomUUID();
         uploadBlob("internal/" + fileId, content);
 
-        final Optional<byte[]> result = fileRetriever.retrieve(StoragePath.internal(), fileId);
+        final Optional<InputStream> result = fileRetriever.retrieve(StoragePath.internal(), fileId);
 
         assertThat(result.isPresent(), is(true));
-        assertThat(result.get(), is(content));
+        assertThat(result.get().readAllBytes(), is(content));
     }
 
     @Test
     public void shouldReturnEmptyWhenBlobDoesNotExist() {
         final UUID fileId = UUID.randomUUID();
 
-        final Optional<byte[]> result = fileRetriever.retrieve(StoragePath.internal(), fileId);
+        final Optional<InputStream> result = fileRetriever.retrieve(StoragePath.internal(), fileId);
 
         assertThat(result.isPresent(), is(false));
     }
 
     @Test
-    public void shouldRetrieveBlobFromPublishedPrefix() {
+    public void shouldRetrieveBlobFromPublishedPrefix() throws Exception {
         final byte[] content = "report content".getBytes();
         final UUID fileId = UUID.randomUUID();
         uploadBlob("published/reports/" + fileId, content);
 
-        final Optional<byte[]> result = fileRetriever.retrieve(StoragePath.published("reports"), fileId);
+        final Optional<InputStream> result = fileRetriever.retrieve(StoragePath.published("reports"), fileId);
 
         assertThat(result.isPresent(), is(true));
-        assertThat(result.get(), is(content));
+        assertThat(result.get().readAllBytes(), is(content));
     }
 
     @Test
-    public void shouldRoundTripWithFileStorer() {
+    public void shouldRoundTripWithFileStorer() throws Exception {
         final byte[] originalContent = "round-trip document".getBytes();
         final UUID correlationId = UUID.randomUUID();
+
+        final AzureBlobConfiguration storerConfiguration = new AzureBlobConfiguration();
+        setField(storerConfiguration, "connectionTimeoutSeconds", "10");
+        setField(storerConfiguration, "responseTimeoutSeconds", "30");
+        setField(storerConfiguration, "transferTimeoutSeconds", "300");
 
         final FileStorer fileStorer = new FileStorer();
         setField(fileStorer, "blobContainerClient", blobContainerClient);
         setField(fileStorer, "logger", LoggerFactory.getLogger(FileStorer.class));
+        setField(fileStorer, "azureBlobConfiguration", storerConfiguration);
 
-        final UUID fileId = fileStorer.store(StoragePath.internal(), correlationId, "doc.pdf", originalContent);
-        final Optional<byte[]> retrieved = fileRetriever.retrieve(StoragePath.internal(), fileId);
+        final UUID fileId = fileStorer.store(StoragePath.internal(), correlationId, "doc.pdf", new ByteArrayInputStream(originalContent));
+        final Optional<InputStream> retrieved = fileRetriever.retrieve(StoragePath.internal(), fileId);
 
         assertThat(retrieved.isPresent(), is(true));
-        assertThat(retrieved.get(), is(originalContent));
+        assertThat(retrieved.get().readAllBytes(), is(originalContent));
     }
 
     private void uploadBlob(final String blobName, final byte[] content) {

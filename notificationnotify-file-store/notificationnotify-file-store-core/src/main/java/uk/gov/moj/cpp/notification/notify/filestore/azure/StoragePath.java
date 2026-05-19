@@ -1,5 +1,7 @@
 package uk.gov.moj.cpp.notification.notify.filestore.azure;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.UUID;
 
 /**
@@ -53,6 +55,7 @@ public class StoragePath {
      * @return a {@code StoragePath} with prefix {@code "published/{topic}"}
      */
     public static StoragePath published(final String topic) {
+        requireNonNull(topic, "topic must not be null");
         return new StoragePath("published/" + topic);
     }
 
@@ -65,6 +68,7 @@ public class StoragePath {
      * @return a {@code StoragePath} with prefix {@code "inbox/{topic}"}
      */
     public static StoragePath inbox(final String topic) {
+        requireNonNull(topic, "topic must not be null");
         return new StoragePath("inbox/" + topic);
     }
 
@@ -85,6 +89,11 @@ public class StoragePath {
      * @return the path prefix without a trailing slash
      */
     public String prefix() {
+        return prefix;
+    }
+
+    @Override
+    public String toString() {
         return prefix;
     }
 }
