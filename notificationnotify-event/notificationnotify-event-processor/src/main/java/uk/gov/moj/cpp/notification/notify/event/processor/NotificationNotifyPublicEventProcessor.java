@@ -1,11 +1,12 @@
 package uk.gov.moj.cpp.notification.notify.event.processor;
 
-import static java.lang.String.format;
 import static java.util.Objects.nonNull;
 import static uk.gov.justice.services.messaging.JsonObjects.createObjectBuilder;
 import static uk.gov.justice.services.core.annotation.Component.EVENT_PROCESSOR;
 import static uk.gov.justice.services.messaging.Envelope.envelopeFrom;
 import static uk.gov.justice.services.messaging.JsonEnvelope.metadataFrom;
+
+import com.azure.storage.blob.BlobContainerClient;
 
 import uk.gov.justice.json.schemas.domains.notificationnotify.EmailNotificationBounced;
 import uk.gov.justice.json.schemas.domains.notificationnotify.NotificationSent;
@@ -17,8 +18,8 @@ import uk.gov.justice.services.core.annotation.Handles;
 import uk.gov.justice.services.core.annotation.ServiceComponent;
 import uk.gov.justice.services.core.enveloper.Enveloper;
 import uk.gov.justice.services.core.sender.Sender;
-import uk.gov.justice.services.fileservice.api.FileServiceException;
-import uk.gov.justice.services.fileservice.api.FileStorer;
+import uk.gov.moj.cpp.notification.notify.event.processor.sender.BlobFileEmailSender;
+import uk.gov.moj.cpp.notification.notify.filestore.azure.StoragePath;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.Metadata;
@@ -56,11 +57,16 @@ public class NotificationNotifyPublicEventProcessor {
     @Inject
     private ObjectToJsonObjectConverter objectToJsonObjectConverter;
 
+    private static final StoragePath BLOB_PATH = StoragePath.internal();
+
     @Inject
-    private FileStorer fileStorer;
+    private BlobContainerClient blobContainerClient;
 
     @Inject
     private ServiceContextSystemUserProvider serviceContextSystemUserProvider;
+
+    @Inject
+    private BlobFileEmailSender blobFileEmailSender;
 
 
     @Handles("notificationnotify.events.notification-sent")
@@ -131,12 +137,38 @@ public class NotificationNotifyPublicEventProcessor {
 
     @Handles("notificationnotify.events.poca-email-already-received")
     public void pocaEmailAlreadyReceived(final Envelope<PocaEmailAlreadyReceived> emailAlreadyReceivedEnvelope) {
-        final PocaEmailAlreadyReceived pocaEmailAlreadyReceived = emailAlreadyReceivedEnvelope.payload();
-        final UUID pocaFileId = pocaEmailAlreadyReceived.getPocaFileId();
+        final UUID pocaFileId = emailAlreadyReceivedEnvelope.payload().getPocaFileId();
         try {
-            fileStorer.delete(pocaFileId);
-        } catch (final FileServiceException e) {
-            LOGGER.error(format("Failed to delete file for given pocaFileId : '%s' from FileService. This could be due to the pocaFileId not having an associated file.", pocaFileId), e);
+            blobContainerClient.getBlobClient(BLOB_PATH.blobName(pocaFileId)).deleteIfExists();
+        } catch (final RuntimeException e) {
+            LOGGER.error("Failed to delete blob for pocaFileId='{}' — assuming it does not exist or was already deleted", pocaFileId, e);
         }
+    }
+
+    @Handles("public.referencedata.event.reference-data-file-published")
+    public void referenceDataFilePublished(final JsonEnvelope event) {
+        final JsonObject payload = event.payloadAsJsonObject();
+        final UUID correlationId = UUID.fromString(payload.getString("correlationId"));
+        final String sourceBlobUri = payload.getString("sourceBlobUri");
+        final String recipientEmail = payload.getString("recipientEmail");
+        final String subject = payload.getString("subject");
+        final String filename = payload.getString("filename");
+        blobFileEmailSender.sendEmailWithBlobAttachment(correlationId, sourceBlobUri, recipientEmail, subject, filename);
+    }
+
+    @Handles("public.mireportdata.live-report-generated")
+    public void liveReportGenerated(final JsonEnvelope event) {
+        final JsonObject payload = event.payloadAsJsonObject();
+        final String blobUri = payload.getString("blobUri", null);
+        if (blobUri == null) {
+            LOGGER.warn("public.mireportdata.live-report-generated received without blobUri — skipping email correlationId='{}'",
+                    event.metadata().id());
+            return;
+        }
+        final UUID correlationId = event.metadata().id();
+        final String recipientEmail = payload.getString("recipientEmail");
+        final String subject = payload.getString("subject");
+        final String filename = payload.getString("filename");
+        blobFileEmailSender.sendEmailWithBlobAttachment(correlationId, blobUri, recipientEmail, subject, filename);
     }
 }

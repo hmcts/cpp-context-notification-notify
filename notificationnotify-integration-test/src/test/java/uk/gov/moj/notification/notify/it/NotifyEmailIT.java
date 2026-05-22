@@ -39,17 +39,13 @@ import static uk.gov.moj.notification.notify.it.util.ResourceLoader.getFileConte
 import static uk.gov.moj.notification.notify.it.util.ResourceLoader.getFileContentForLargeFile;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
-import uk.gov.justice.services.fileservice.api.FileServiceException;
 import uk.gov.justice.services.integrationtest.utils.jms.JmsMessageConsumerClient;
 import uk.gov.justice.services.test.utils.core.messaging.Poller;
 import uk.gov.justice.services.test.utils.core.rest.RestClient;
+import uk.gov.moj.cpp.notification.notify.filestore.test.BlobStoreTestHelper;
 import uk.gov.moj.notification.notify.it.util.EventFetcher;
-import uk.gov.moj.notification.notify.it.util.FileServiceHelper;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -74,6 +70,14 @@ public class NotifyEmailIT extends BaseIT {
 
     private static final String PUBLIC_EVENT_SENT = "public.notificationnotify.events.notification-sent";
     private static final String PUBLIC_EVENT_FAILED = "public.notificationnotify.events.notification-failed";
+    private static final BlobStoreTestHelper BLOB_STORE_HELPER = blobStoreTestHelper();
+
+    private static BlobStoreTestHelper blobStoreTestHelper() {
+        final String azuriteKey = "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==";
+        final String connectionString = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey="
+                + azuriteKey + ";BlobEndpoint=http://" + getHost() + ":10000/devstoreaccount1;";
+        return BlobStoreTestHelper.forConnectionStringAndContainer(connectionString, "notificationnotify-files");
+    }
 
     private JmsMessageConsumerClient publicNotificationSentConsumerClient;
     private JmsMessageConsumerClient publicNotificationFailedConsumerClient;
@@ -318,15 +322,12 @@ public class NotifyEmailIT extends BaseIT {
 
     @Test
     @SuppressWarnings("squid:S1607")
-    public void shouldSendSuccessfulEmailWithPersonalisationWithFileIdWithFileLessThanMaxLimit() throws IOException, SQLException, FileServiceException {
+    public void shouldSendSuccessfulEmailWithPersonalisationWithFileIdWithFileLessThanMaxLimit() {
         final UUID cppNotificationId = randomUUID();
         final UUID govNotifyNotificationId = randomUUID();
         final String fileName = "shouldSendSuccessfulEmailWithPersonalisationWithFileIdWithFileLessThanMaxLimit.txt";
-        final String mediaType = "application/text";
         final String content = "content";
-        final InputStream contentStream = new ByteArrayInputStream(content.getBytes());
-        final UUID fileId = FileServiceHelper.create(fileName, mediaType, contentStream);
-        contentStream.close();
+        final UUID fileId = BLOB_STORE_HELPER.upload("internal", fileName, content.getBytes());
         stubGovNotifySuccessClientWithPersonalisation(cppNotificationId, govNotifyNotificationId, content, false);
         stubGovNotifyCheckStatusWithStatusDelivered(cppNotificationId, govNotifyNotificationId);
 
@@ -370,14 +371,11 @@ public class NotifyEmailIT extends BaseIT {
 
     @Test
     @SuppressWarnings("squid:S1607")
-    public void shouldSendSuccessfulEmailWithCsvFileSizeLessThan2MB() throws IOException, SQLException, FileServiceException {
+    public void shouldSendSuccessfulEmailWithCsvFileSizeLessThan2MB() throws IOException {
         final UUID cppNotificationId = randomUUID();
         final UUID govNotifyNotificationId = randomUUID();
         final String filePath = "csv/NCES_DATA_200702.csv";
-        final String mediaType = "application/text";
-        final InputStream contentStream = new ByteArrayInputStream(getFileContent(filePath));
-        final UUID fileId = FileServiceHelper.create(filePath, mediaType, contentStream);
-        contentStream.close();
+        final UUID fileId = BLOB_STORE_HELPER.upload("internal", filePath, getFileContent(filePath));
 
         stubGovNotifySuccessClientWithPersonalisationContainingCsvFile(cppNotificationId, govNotifyNotificationId, getBase64EncodedFileContent(filePath), true);
         stubGovNotifyCheckStatusWithStatusDelivered(cppNotificationId, govNotifyNotificationId);

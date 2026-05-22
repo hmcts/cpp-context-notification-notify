@@ -24,3 +24,15 @@ subscriptions_descriptor:
         - name: notificationnotify.events.poca-email-already-received
           schema_uri: http://moj.gov.uk/cpp/json/schemas/notificationnotify/events/poca-email-already-received.json
       event_source_name: notificationnotify.event.source
+
+    - name: public referencedata file subscription
+      events:
+        - name: public.referencedata.event.reference-data-file-published
+          schema_uri: http://cpp.moj.gov.uk/referencedata/json/schemas/event/public-reference-data-file-published.json
+      event_source_name: public.event.source
+
+    - name: public mireportdata live report subscription
+      events:
+        - name: public.mireportdata.live-report-generated
+          schema_uri: http://cpp.moj.gov.uk/mireportdata/json/schemas/event/public.mireportdata.live-report-generated.json
+      event_source_name: public.event.source

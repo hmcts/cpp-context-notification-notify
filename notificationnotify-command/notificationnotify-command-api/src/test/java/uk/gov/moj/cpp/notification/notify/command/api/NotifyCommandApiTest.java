@@ -112,4 +112,22 @@ public class NotifyCommandApiTest {
                         .build()));
     }
 
+    @Test
+    public void shouldIngestFile() {
+        final String commandName = "notificationnotify.ingest-file";
+        final String sourceUri = "https://storage.blob.core.windows.net/container/blob?sp=r&sig=test";
+        final JsonObjectBuilder payload = createObjectBuilder()
+                .add("sourceUri", sourceUri)
+                .add("correlationId", UUID.randomUUID().toString())
+                .add("filename", "report.csv");
+        final JsonEnvelope jsonEnvelope = envelopeFrom(metadataBuilder()
+                .withId(UUID.randomUUID())
+                .withName(commandName), payload);
+
+        notifyCommandApi.ingestFile(jsonEnvelope);
+
+        verify(sender).send(jsonEnvelopeArgumentCaptor.capture());
+        assertThat(jsonEnvelopeArgumentCaptor.getValue().metadata().name(), is("notificationnotify.command.ingest-file"));
+    }
+
 }

@@ -11,14 +11,12 @@ import com.microsoft.azure.functions.HttpStatusType;
  * returned response by HTTP trigger function is correct or not.
  */
 public class HttpResponseMessageMock implements HttpResponseMessage {
-    private int httpStatusCode;
     private HttpStatusType httpStatus;
     private Object body;
     private Map<String, String> headers;
 
     public HttpResponseMessageMock(HttpStatusType status, Map<String, String> headers, Object body) {
         this.httpStatus = status;
-        this.httpStatusCode = status.value();
         this.headers = headers;
         this.body = body;
     }
@@ -30,7 +28,7 @@ public class HttpResponseMessageMock implements HttpResponseMessage {
 
     @Override
     public int getStatusCode() {
-        return httpStatusCode;
+        return this.httpStatus.value();
     }
 
     @Override
@@ -45,19 +43,16 @@ public class HttpResponseMessageMock implements HttpResponseMessage {
 
     public static class HttpResponseMessageBuilderMock implements HttpResponseMessage.Builder {
         private Object body;
-        private int httpStatusCode;
         private Map<String, String> headers;
         private HttpStatusType httpStatus;
 
         public Builder status(HttpStatus status) {
-            this.httpStatusCode = status.value();
             this.httpStatus = status;
             return this;
         }
 
         @Override
         public Builder status(HttpStatusType httpStatusType) {
-            this.httpStatusCode = httpStatusType.value();
             this.httpStatus = httpStatusType;
             return this;
         }

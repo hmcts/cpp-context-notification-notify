@@ -73,8 +73,8 @@
             <artifactId>commons-io</artifactId>
         </dependency>
         <dependency>
-            <groupId>uk.gov.justice.services</groupId>
-            <artifactId>file-service-persistence</artifactId>
+            <groupId>uk.gov.moj.cpp.notification.notify</groupId>
+            <artifactId>notificationnotify-file-store-core</artifactId>
         </dependency>
         <dependency>
             <groupId>uk.gov.moj.cpp.core.domain</groupId>

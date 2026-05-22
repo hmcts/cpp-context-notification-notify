@@ -36,6 +36,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>uk.gov.moj.cpp.notification.notify</groupId>
+            <artifactId>notificationnotify-file-store-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>uk.gov.moj.cpp.core.domain</groupId>
             <artifactId>common-core-domain</artifactId>
         </dependency>

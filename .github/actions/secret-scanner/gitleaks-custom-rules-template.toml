@@ -3,6 +3,12 @@ title = "Custom rules"
 [extend]
 useDefault = true
 
+# Azurite well-known public development key — not a real secret.
+# Published by Microsoft at: https://learn.microsoft.com/azure/storage/common/storage-use-azurite
+[allowlist]
+description = "Azurite public dev key allowlist"
+regexes = ['''Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq''']
+
 [[rules]]
 id = "internal-urls"
 description = "Identify internal urls"

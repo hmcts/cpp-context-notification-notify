@@ -99,6 +99,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>uk.gov.moj.cpp.notification.notify</groupId>
+            <artifactId>notificationnotify-file-store-test-utils</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>uk.gov.justice.services</groupId>
             <artifactId>test-utils-framework-persistence</artifactId>
             <scope>test</scope>
