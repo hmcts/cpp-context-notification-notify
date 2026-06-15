@@ -10,7 +10,10 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.spy;
 import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.setField;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import uk.gov.justice.json.schemas.domains.notificationnotify.BouncedEmailAlreadyNotified;
 import uk.gov.justice.json.schemas.domains.notificationnotify.EmailNotificationBounced;
@@ -147,7 +150,7 @@ public class NotificationTest {
 
         final ZonedDateTime sentTime = now();
         final Stream<Object> notificationSentEvent = notification.markAsSent(sentTime,
-                null,null,null,null,
+                null, null, null, null,
                 null);
         final List eventsList = notificationSentEvent.collect(toList());
         final Object event = eventsList.get(0);
@@ -375,6 +378,47 @@ public class NotificationTest {
         assertThat(bouncedEmailAlreadyNotified.getNotificationId(), is(notificationId));
     }
 
+    @Test
+    void shouldCreateNotificationSentEventWhenNotAlreadySent() {
+        Notification notification = spy(new Notification());
+        notification.setNotificationSent(false);
+
+        ZonedDateTime sentTime = ZonedDateTime.now();
+        ZonedDateTime completedAt = sentTime.plusMinutes(1);
+
+        doAnswer(invocation -> invocation.getArgument(0))
+                .when(notification)
+                .apply(any());
+
+        Stream<Object> result = notification.markAsSent(
+                sentTime,
+                Optional.of("to@test.com"),
+                Optional.of("reply@test.com"),
+                Optional.of("Subject"),
+                Optional.of("Body"),
+                Optional.of(completedAt));
+
+        assertEquals(1, result.count());
+        verify(notification, times(1)).apply(any());
+    }
+
+    @Test
+    void shouldReturnEmptyStreamWhenAlreadySent() {
+        Notification notification = spy(new Notification());
+        notification.setNotificationSent(true);
+        ZonedDateTime sentTime = ZonedDateTime.now();
+
+        Stream<Object> result = notification.markAsSent(
+                sentTime,
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty());
+
+        assertEquals(0, result.count());
+        verify(notification, never()).apply(any());
+    }
 
     private Notification sendEmailNotification(final UUID notificationId) {
         final UUID templateId = randomUUID();
@@ -385,7 +429,7 @@ public class NotificationTest {
         final Optional<String> linkToDownload = of("http://localhost:8080/material-query-api/query/api/rest/material/b439f425-e894-4a2c-aeb8-ed172565720f");
         final Personalisation personalisation = Personalisation.personalisation().withAdditionalProperty("name", "value").build();
         final Notification notification = new Notification();
-        notification.sendWithMaterialAttachment(notificationId, templateId, sendToAddress, replyToAddress, replyToAddressId, linkToDownload, of(personalisation),clientContext);
+        notification.sendWithMaterialAttachment(notificationId, templateId, sendToAddress, replyToAddress, replyToAddressId, linkToDownload, of(personalisation), clientContext);
         return notification;
     }
 }

@@ -46,6 +46,7 @@ public class Notification implements Aggregate {
     private String postage;
     private String clientContext;
     private boolean isBouncedEmailNotified;
+    private boolean isNotificationSent;
 
     public Stream<Object> send(final UUID notificationId,
                                final UUID templateId,
@@ -162,18 +163,21 @@ public class Notification implements Aggregate {
                                      final Optional<String> replyToAddress,
                                      final Optional<String> emailSubject,
                                      final Optional<String> emailBody,
-                                     final Optional<ZonedDateTime> completedAt
-    ) {
-        return apply(Stream.of(notificationSent()
-                .withNotificationId(notificationId)
-                .withClientContext(this.clientContext)
-                .withCompletedAt(completedAt)
-                .withSendToAddress(sendToAddress)
-                .withReplyToAddress(replyToAddress)
-                .withEmailSubject(emailSubject)
-                .withEmailBody(emailBody)
-                .withSentTime(sentTime)
-                .build()));
+                                     final Optional<ZonedDateTime> completedAt) {
+
+        if (!isNotificationSent) {
+            return apply(Stream.of(notificationSent()
+                    .withNotificationId(notificationId)
+                    .withClientContext(this.clientContext)
+                    .withCompletedAt(completedAt)
+                    .withSendToAddress(sendToAddress)
+                    .withReplyToAddress(replyToAddress)
+                    .withEmailSubject(emailSubject)
+                    .withEmailBody(emailBody)
+                    .withSentTime(sentTime)
+                    .build()));
+        }
+        return Stream.empty();
     }
 
     public Stream<Object> processBouncedEmail() {
@@ -229,7 +233,7 @@ public class Notification implements Aggregate {
                 when(LetterQueuedForResend.class).apply(x -> resendAttemptsRemaining--),
                 when(NotificationAttempted.class).apply(x -> doNothing()),
                 when(NotificationFailed.class).apply(x -> doNothing()),
-                when(NotificationSent.class).apply(x -> doNothing()),
+                when(NotificationSent.class).apply(x -> this.isNotificationSent = true),
                 when(EmailNotificationBounced.class).apply(emailNotificationBounced -> this.isBouncedEmailNotified = true),
                 otherwiseDoNothing()
         );
@@ -249,5 +253,9 @@ public class Notification implements Aggregate {
         this.letterUrl = letterUrl;
         this.postage = postage;
         this.clientContext = clientContext;
+    }
+
+    public void setNotificationSent(boolean notificationSent) {
+        this.isNotificationSent = notificationSent;
     }
 }
