@@ -61,5 +61,7 @@ These are the non-obvious fixes beyond the generic per-context playbook
 
 - Spike branch: `java-25-wildfly-40-upgrade-spike` (off `main`).
 - PR target (integration/merge): `team/25.104.x`.
-- Pipeline: `azure-pipelines.yaml` on the JDK25/WF40 track — pool `ubuntu-j25-postgres`,
-  templates `ref: 'wildfly40'`, `aksDeployBranch: 'wildfly40'`. Non-Camunda, so no `isCamunda`.
+- Pipeline: `azure-pipelines.yaml` on the JDK25/WF40 track — pool `ubuntu-j25`
+  (NOT `ubuntu-j25-postgres`: that agent's own postgres sidecar makes DB validation connect to the
+  wrong instance → `role "notificationnotify" does not exist`), templates `ref: 'wildfly40'`,
+  `aksDeployBranch: 'wildfly40'`. Non-Camunda, so no `isCamunda`.
