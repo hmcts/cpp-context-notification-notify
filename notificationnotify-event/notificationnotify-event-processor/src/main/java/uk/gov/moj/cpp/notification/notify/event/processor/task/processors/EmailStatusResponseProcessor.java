@@ -12,7 +12,7 @@ import uk.gov.moj.cpp.notification.notify.event.processor.task.handlers.Complete
 import uk.gov.moj.cpp.notification.notify.event.processor.task.handlers.RetryHandler;
 import uk.gov.moj.cpp.notification.notify.event.processor.task.handlers.PermanentFailureHandler;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

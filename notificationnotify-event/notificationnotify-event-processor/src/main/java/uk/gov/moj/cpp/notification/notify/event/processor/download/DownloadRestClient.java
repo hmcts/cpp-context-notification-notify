@@ -6,9 +6,9 @@ import uk.gov.moj.cpp.systemusers.ServiceContextSystemUserProvider;
 
 import java.util.UUID;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 
 @ApplicationScoped
 public class DownloadRestClient {
@@ -20,7 +20,7 @@ public class DownloadRestClient {
     private MediaTypeSelector mediaTypeSelector;
 
     @Inject
-    private ClientCreator clientCreator;
+    private JaxRsClientProvider jaxRsClientProvider;
 
     public Response download(final String documentUrl) {
 
@@ -28,7 +28,7 @@ public class DownloadRestClient {
                 .getContextSystemUserId()
                 .orElseThrow(() -> new DownloadClientException("Failed to retrieve System User Id"));
 
-        return clientCreator.createNewClient()
+        return jaxRsClientProvider.getClient()
                 .target(documentUrl)
                 .request()
                 .accept(mediaTypeSelector.mediaTypeFor(documentUrl))

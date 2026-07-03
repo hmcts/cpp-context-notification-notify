@@ -1,11 +1,11 @@
 package uk.gov.moj.notification.notify.it.stub;
 
 import static uk.gov.justice.services.messaging.JsonObjects.createObjectBuilder;
-import static javax.ws.rs.core.Response.Status.CREATED;
+import static jakarta.ws.rs.core.Response.Status.CREATED;
 
 import java.util.UUID;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 public class SendLetterResponseBuilder implements NotifyResponseBuilder {
 

@@ -7,7 +7,7 @@ import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Stream.of;
-import static javax.json.JsonValue.NULL;
+import static jakarta.json.JsonValue.NULL;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -329,8 +329,10 @@ public class NotifyCommandHandlerTest {
     public void shouldHandleMarkAsSentWithEmail() throws EventStreamException {
 
         final UUID notificationId = randomUUID();
-        final ZonedDateTime sentTime = new UtcClock().now();
-        final ZonedDateTime completedAt = new UtcClock().now();
+        // Fixed, distinct instants: reading UtcClock twice made sentTime/completedAt differ by a
+        // millisecond and this test compared the two, so it flaked across ms boundaries.
+        final ZonedDateTime sentTime = ZonedDateTimes.fromString("2026-07-03T10:24:32.931Z");
+        final ZonedDateTime completedAt = ZonedDateTimes.fromString("2026-07-03T10:24:33.500Z");
         final UUID caseId = UUID.randomUUID();
         final MarkAsSent markAsSent = markAsSent().withNotificationId(notificationId).withSentTime(sentTime).build();
 
@@ -364,7 +366,7 @@ public class NotifyCommandHandlerTest {
                                 payloadIsJson(allOf(
                                         withJsonPath("$.notificationId", is(notificationId.toString())),
                                         withJsonPath("$.sentTime", is(ZonedDateTimes.toString(sentTime))),
-                                        withJsonPath("$.completedAt", is(ZonedDateTimes.toString(sentTime))),
+                                        withJsonPath("$.completedAt", is(ZonedDateTimes.toString(completedAt))),
                                         withJsonPath("$.sendToAddress", is("test21@hmcts.net")),
                                         withJsonPath("$.replyToAddress", is("test01@hmcts.net")),
                                         withJsonPath("$.emailSubject", is("email subject")),

@@ -3,7 +3,7 @@ package uk.gov.moj.notification.notify.it;
 import static java.lang.String.format;
 import static java.util.Optional.empty;
 import static java.util.UUID.randomUUID;
-import static javax.ws.rs.core.Response.Status.ACCEPTED;
+import static jakarta.ws.rs.core.Response.Status.ACCEPTED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static uk.gov.justice.services.common.http.HeaderConstants.USER_ID;
@@ -23,17 +23,17 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.Multipart;
-import javax.mail.Session;
-import javax.mail.Store;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.Response;
+import jakarta.mail.Folder;
+import jakarta.mail.Message;
+import jakarta.mail.Multipart;
+import jakarta.mail.Session;
+import jakarta.mail.Store;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.Response;
 
 import com.icegreen.greenmail.user.GreenMailUser;
 import com.icegreen.greenmail.util.DummySSLSocketFactory;
@@ -97,7 +97,7 @@ public class NotificationBouncedIT extends BaseIT {
     shouldCheckBouncedEmail() throws Exception {
 
         LOGGER.info("is GREEN Mail  Running" + greenMail.getImap().isRunning());
-        // create an e-mail message using javax.mail
+        // create an e-mail message using jakarta.mail
         MimeMessage message = new MimeMessage((Session) null);
         message.setFrom(new InternetAddress(EMAIL_USER_ADDRESS));
         message.addRecipient(Message.RecipientType.TO, new InternetAddress(
