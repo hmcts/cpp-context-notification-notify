@@ -2,7 +2,7 @@ package uk.gov.moj.cpp.notification.notify.event.processor.task.handlers;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;

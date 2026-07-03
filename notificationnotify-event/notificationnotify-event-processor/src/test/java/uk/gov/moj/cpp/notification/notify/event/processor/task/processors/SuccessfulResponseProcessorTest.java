@@ -20,7 +20,7 @@ import uk.gov.moj.cpp.notification.notify.event.processor.task.domain.Notificati
 
 import java.time.ZonedDateTime;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

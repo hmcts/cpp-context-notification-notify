@@ -18,8 +18,8 @@ import uk.gov.moj.cpp.notification.notify.event.processor.task.domain.ExternalId
 import uk.gov.moj.cpp.notification.notify.event.processor.task.processors.EmailStatusResponseProcessor;
 import uk.gov.moj.cpp.notification.notify.event.processor.task.processors.StatusErrorResponseProcessor;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 

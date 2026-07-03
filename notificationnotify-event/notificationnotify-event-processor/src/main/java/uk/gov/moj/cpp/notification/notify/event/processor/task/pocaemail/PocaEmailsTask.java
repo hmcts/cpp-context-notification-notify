@@ -1,7 +1,6 @@
 package uk.gov.moj.cpp.notification.notify.event.processor.task.pocaemail;
 
 import static java.util.Objects.nonNull;
-import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.justice.services.core.annotation.Component.COMMAND_API;
 import static uk.gov.moj.cpp.jobstore.api.task.ExecutionInfo.executionInfo;
 import static uk.gov.moj.cpp.jobstore.api.task.ExecutionStatus.COMPLETED;
@@ -28,11 +27,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import uk.gov.justice.services.messaging.JsonObjects;
-import javax.json.JsonObject;
-import javax.mail.MessagingException;
+import jakarta.json.JsonObject;
+import jakarta.mail.MessagingException;
 
 import org.slf4j.Logger;
 
@@ -40,10 +39,12 @@ import org.slf4j.Logger;
 @ApplicationScoped
 public class PocaEmailsTask implements ExecutableTask {
 
-    private static final Logger LOGGER = getLogger(PocaEmailsTask.class);
-
     private static final String POCA_EMAIL_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
     private static final String DOCX = "docx";
+
+    @Inject
+    @SuppressWarnings("squid:S1312")
+    private Logger logger;
 
     @Inject
     UtcClock clock;
@@ -73,8 +74,8 @@ public class PocaEmailsTask implements ExecutableTask {
         try (final PocaEmailHandler emailHandler = emailHandlerFactory.createPocaEmailHandler(mailServerCredentials)) {
             final List<EmailDetail> emailDetails = emailHandler.fetchPocaEmailDetails();
 
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Executing PocaEmailTask {}", emailDetails);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Executing PocaEmailTask {}", emailDetails);
             }
             if (nonNull(emailDetails)) {
                 emailDetails.stream()
@@ -86,13 +87,13 @@ public class PocaEmailsTask implements ExecutableTask {
                                 }
                                 emailHandler.deleteEmail(emailDetail);
                             } catch (MessagingException | XmlProcessingException e) {
-                                LOGGER.error("PocaEmailsTask failed to receive email", e);
+                                logger.error("PocaEmailsTask failed to receive email", e);
                                 notificationNotifyCommandSender.recordCheckPocaEmailRequestAsFailed(mailServerCredentials.getServer(), e.getMessage());
                             }
                         });
             }
         } catch (MessagingException | IOException  e) {
-            LOGGER.error("PocaEmailsTask Failed to process file", e);
+            logger.error("PocaEmailsTask Failed to process file", e);
         }
 
         return executionInfo()
@@ -117,7 +118,7 @@ public class PocaEmailsTask implements ExecutableTask {
                 pocaFileId = fileStorer.store(metadata, emailDetail.getDocumentContent());
                 break;
             } catch (FileServiceException ex) {
-                LOGGER.error("FAILED - Upload document in the filestore on retry {} of {} error :  {}", count, maxRetries, ex);
+                logger.error("FAILED - Upload document in the filestore on retry {} of {} error :  {}", count, maxRetries, ex);
                 if (++count >= maxRetries) {
                     throw new XmlProcessingException("Unable to process request due to system error. Please try after some time or contact common platform helpdesk.");
                 }

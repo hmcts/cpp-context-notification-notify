@@ -5,9 +5,9 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import uk.gov.justice.services.common.configuration.GlobalValue;
 import uk.gov.moj.cpp.notification.notify.event.processor.task.Task;
 

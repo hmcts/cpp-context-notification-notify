@@ -2,8 +2,8 @@ package uk.gov.moj.cpp.notification.notify.event.processor.task.letter;
 
 import java.util.List;
 import java.util.Optional;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import uk.gov.moj.cpp.jobstore.api.task.ExecutableTask;
 import uk.gov.moj.cpp.jobstore.api.task.ExecutionInfo;
 import uk.gov.moj.cpp.notification.notify.event.processor.retry.RetryService;

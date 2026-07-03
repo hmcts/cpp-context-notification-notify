@@ -7,7 +7,7 @@ import uk.gov.moj.cpp.notification.notify.event.processor.task.domain.ExternalId
 import uk.gov.moj.cpp.notification.notify.event.processor.task.handlers.RetryHandler;
 import uk.gov.moj.cpp.notification.notify.event.processor.task.handlers.PermanentFailureHandler;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class StatusErrorResponseProcessor {
 

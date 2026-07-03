@@ -10,7 +10,7 @@ import uk.gov.moj.cpp.notification.notify.event.processor.response.ErrorResponse
 import uk.gov.moj.cpp.notification.notify.event.processor.retry.RetryService;
 import uk.gov.moj.cpp.notification.notify.event.processor.task.Task;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class RetryHandler {
     

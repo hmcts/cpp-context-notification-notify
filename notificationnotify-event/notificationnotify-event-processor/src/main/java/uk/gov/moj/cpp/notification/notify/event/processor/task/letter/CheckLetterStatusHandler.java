@@ -1,6 +1,6 @@
 package uk.gov.moj.cpp.notification.notify.event.processor.task.letter;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import uk.gov.justice.services.common.converter.JsonObjectToObjectConverter;
 import uk.gov.moj.cpp.jobstore.api.task.ExecutionInfo;

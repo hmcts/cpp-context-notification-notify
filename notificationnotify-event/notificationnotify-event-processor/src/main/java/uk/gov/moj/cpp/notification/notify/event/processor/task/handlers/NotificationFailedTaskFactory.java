@@ -2,7 +2,7 @@ package uk.gov.moj.cpp.notification.notify.event.processor.task.handlers;
 
 import java.util.Optional;
 import java.util.UUID;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import uk.gov.justice.services.common.converter.ObjectToJsonObjectConverter;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.moj.cpp.jobstore.api.task.ExecutionInfo;

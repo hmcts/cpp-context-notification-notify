@@ -2,7 +2,7 @@ package uk.gov.moj.cpp.notification.notify.event.processor.sender;
 
 import uk.gov.moj.cpp.notification.notify.event.processor.task.Task;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class SenderFactory {
 

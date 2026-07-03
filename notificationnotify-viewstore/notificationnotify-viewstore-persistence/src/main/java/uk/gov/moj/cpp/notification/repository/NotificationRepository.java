@@ -8,21 +8,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
-import org.apache.deltaspike.data.api.EntityRepository;
-import org.apache.deltaspike.data.api.Repository;
-import org.apache.deltaspike.data.api.criteria.CriteriaSupport;
-
-@Repository
 @ApplicationScoped
-public abstract class NotificationRepository implements EntityRepository<Notification, UUID>, CriteriaSupport<Notification> {
+public class NotificationRepository {
 
     public static final String STATUS = "status";
     public static final String SEND_TO_ADDRESS = "sendToAddress";
@@ -34,8 +29,16 @@ public abstract class NotificationRepository implements EntityRepository<Notific
     public static final String LETTER_URL = "letterUrl";
     public static final String MATERIAL_URL = "materialUrl";
 
-    @Inject
-    private EntityManager entityManager;
+    @PersistenceContext(unitName = "notificationnotify")
+    EntityManager entityManager;
+
+    public Notification save(final Notification notification) {
+        return entityManager.merge(notification);
+    }
+
+    public Notification findBy(final UUID notificationId) {
+        return entityManager.find(Notification.class, notificationId);
+    }
 
     public List<Notification> findNotifications(final Map<String, Object> queryParameters) {
 

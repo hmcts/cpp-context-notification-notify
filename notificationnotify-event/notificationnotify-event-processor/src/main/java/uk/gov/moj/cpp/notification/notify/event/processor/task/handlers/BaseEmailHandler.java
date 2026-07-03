@@ -2,19 +2,19 @@ package uk.gov.moj.cpp.notification.notify.event.processor.task.handlers;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static javax.mail.Flags.Flag.DELETED;
+import static jakarta.mail.Flags.Flag.DELETED;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import uk.gov.moj.cpp.notification.notify.event.processor.task.domain.EmailDetail;
 
 import java.util.Properties;
 
-import javax.mail.Flags;
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Store;
+import jakarta.mail.Flags;
+import jakarta.mail.Folder;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.Store;
 
 import org.slf4j.Logger;
 

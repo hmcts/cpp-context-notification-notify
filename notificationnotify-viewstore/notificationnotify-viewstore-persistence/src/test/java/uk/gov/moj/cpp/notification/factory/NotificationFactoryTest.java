@@ -10,12 +10,12 @@ import uk.gov.moj.cpp.notification.entity.Notification;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class NotificationFactoryTest {
+class NotificationFactoryTest {
 
     @Test
-    public void shouldCreateEmailTypeNotification() {
+    void shouldCreateEmailTypeNotification() {
         final UUID notificationId = randomUUID();
         final String status = "status";
         final String sendToAddress = "send to address";
@@ -42,7 +42,7 @@ public class NotificationFactoryTest {
     }
 
     @Test
-    public void shouldCreateLetterTypeNotification() {
+    void shouldCreateLetterTypeNotification() {
         final UUID notificationId = randomUUID();
         final String status = "status";
         final String letterUrl = "http://someplace.co.uk/letter.pdf";

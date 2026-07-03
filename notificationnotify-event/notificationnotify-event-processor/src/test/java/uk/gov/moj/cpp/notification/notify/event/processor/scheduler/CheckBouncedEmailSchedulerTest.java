@@ -15,7 +15,7 @@ import uk.gov.moj.cpp.jobstore.api.task.ExecutionInfo;
 
 import java.time.ZonedDateTime;
 
-import javax.ejb.TimerService;
+import jakarta.ejb.TimerService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
