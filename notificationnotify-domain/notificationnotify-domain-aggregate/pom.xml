@@ -3,12 +3,12 @@
     <parent>
         <artifactId>notificationnotify-domain</artifactId>
         <groupId>uk.gov.moj.cpp.notification.notify</groupId>
-        <version>25.104.0-M2-SNAPSHOT</version>
+        <version>25.104.1-M2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>notificationnotify-domain-aggregate</artifactId>
-    <version>25.104.0-M2-SNAPSHOT</version>
+    <version>25.104.1-M2-SNAPSHOT</version>
 
     <properties>
         <maven.build.timestamp.format>MMddHHmmss</maven.build.timestamp.format>
