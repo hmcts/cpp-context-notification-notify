@@ -4,7 +4,7 @@
     <parent>
         <groupId>uk.gov.moj.cpp.common</groupId>
         <artifactId>service-parent-pom</artifactId>
-        <version>25.104.2</version>
+        <version>25.104.4</version>
     </parent>
 
     <groupId>uk.gov.moj.cpp.notification.notify</groupId>
@@ -17,21 +17,15 @@
 
     <properties>
         <notification-client.version>3.17.3-RELEASE</notification-client.version>
-        <coredomain.version>25.104.2</coredomain.version>
+        <coredomain.version>25.104.4</coredomain.version>
         <stream-transformation-tool-api.version>7.0.0</stream-transformation-tool-api.version>
 
         <maven.cucumber.reporting.plugin.version>2.0.0</maven.cucumber.reporting.plugin.version>
         <azure-functions-maven-plugin.version>1.12.0</azure-functions-maven-plugin.version>
-        <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
-        <maven-assembly-plugin.version>3.2.0</maven-assembly-plugin.version>
         <azure.storage.version>8.4.0</azure.storage.version>
-        <jsoup.version>1.18.2</jsoup.version>
         <jgitflow.maven.developBranchName>main</jgitflow.maven.developBranchName>
-        <h2.version>2.3.232</h2.version>
         <!-- Angus Mail: Jakarta Mail 2.1 reference impl, bundled by the standalone azure-functions module (WildFly modules provide it for container deployments). Not yet BOM-managed; move to cp-maven-common-bom in a future milestone. -->
         <angus-mail.version>2.0.5</angus-mail.version>
-        <!-- GreenMail 2.x is the first release built against jakarta.mail (2.0.0 switched from javax.mail). Required now the IT email tests use jakarta.mail. Not BOM-managed; move to cp-maven-common-bom in a future milestone. -->
-        <greenmail.version>2.1.0</greenmail.version>
     </properties>
 
     <modules>
