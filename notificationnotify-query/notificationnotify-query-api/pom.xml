@@ -5,7 +5,7 @@
     <parent>
         <artifactId>notificationnotify-query</artifactId>
         <groupId>uk.gov.moj.cpp.notification.notify</groupId>
-        <version>25.104.5-M3-SNAPSHOT</version>
+        <version>25.104.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>notificationnotify-query-api</artifactId>
