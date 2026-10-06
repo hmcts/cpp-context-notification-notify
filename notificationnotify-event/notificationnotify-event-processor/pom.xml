@@ -3,7 +3,7 @@
     <parent>
         <artifactId>notificationnotify-event</artifactId>
         <groupId>uk.gov.moj.cpp.notification.notify</groupId>
-        <version>25.104.5-M3-SNAPSHOT</version>
+        <version>25.104.47-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -27,7 +27,6 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>${jsoup.version}</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.moj.cpp.common</groupId>
