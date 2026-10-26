@@ -21,7 +21,7 @@
         <stream-transformation-tool-api.version>7.0.0</stream-transformation-tool-api.version>
 
         <maven.cucumber.reporting.plugin.version>2.0.0</maven.cucumber.reporting.plugin.version>
-        <azure-functions-maven-plugin.version>1.12.0</azure-functions-maven-plugin.version>
+        <azure-functions-maven-plugin.version>1.42.0</azure-functions-maven-plugin.version>
         <azure.storage.version>8.4.0</azure.storage.version>
         <jgitflow.maven.developBranchName>main</jgitflow.maven.developBranchName>
         <!-- Angus Mail: Jakarta Mail 2.1 reference impl, bundled by the standalone azure-functions module (WildFly modules provide it for container deployments). Not yet BOM-managed; move to cp-maven-common-bom in a future milestone. -->
