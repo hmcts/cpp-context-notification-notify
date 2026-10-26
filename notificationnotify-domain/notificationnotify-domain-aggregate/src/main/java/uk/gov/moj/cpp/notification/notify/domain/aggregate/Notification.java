@@ -38,7 +38,7 @@ public class Notification implements Aggregate {
 
     private static final String FIRST_CLASS_POSTAGE = "first";
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     private UUID notificationId;
     private int resendAttemptsRemaining = 5;
@@ -46,6 +46,7 @@ public class Notification implements Aggregate {
     private String postage;
     private String clientContext;
     private boolean isBouncedEmailNotified;
+    private boolean sent;
 
     public Stream<Object> send(final UUID notificationId,
                                final UUID templateId,
@@ -164,6 +165,10 @@ public class Notification implements Aggregate {
                                      final Optional<String> emailBody,
                                      final Optional<ZonedDateTime> completedAt
     ) {
+        if (sent) {
+            return empty();
+        }
+
         return apply(Stream.of(notificationSent()
                 .withNotificationId(notificationId)
                 .withClientContext(this.clientContext)
@@ -229,7 +234,7 @@ public class Notification implements Aggregate {
                 when(LetterQueuedForResend.class).apply(x -> resendAttemptsRemaining--),
                 when(NotificationAttempted.class).apply(x -> doNothing()),
                 when(NotificationFailed.class).apply(x -> doNothing()),
-                when(NotificationSent.class).apply(x -> doNothing()),
+                when(NotificationSent.class).apply(x -> this.sent = true),
                 when(EmailNotificationBounced.class).apply(emailNotificationBounced -> this.isBouncedEmailNotified = true),
                 otherwiseDoNothing()
         );

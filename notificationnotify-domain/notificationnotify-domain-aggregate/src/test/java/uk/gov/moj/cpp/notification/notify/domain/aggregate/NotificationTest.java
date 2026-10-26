@@ -160,6 +160,17 @@ public class NotificationTest {
     }
 
     @Test
+    public void shouldNotEmitAnotherNotificationSentWhenAlreadyMarkedAsSent() {
+        final Notification notification = sendEmailNotification(notificationId);
+
+        notification.markAsSent(now(), null, null, null, null, null).collect(toList());
+
+        final Stream<Object> secondMarkAsSent = notification.markAsSent(now(), null, null, null, null, null);
+
+        assertTrue(secondMarkAsSent.collect(toList()).isEmpty());
+    }
+
+    @Test
     public void shouldMarkAsFailed() {
 
         final Notification notification = sendEmailNotification(notificationId);
