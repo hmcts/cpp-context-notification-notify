@@ -11,7 +11,7 @@ import uk.gov.moj.cpp.notification.notify.event.processor.retry.RetryService;
 
 import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;

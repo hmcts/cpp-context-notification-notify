@@ -2,8 +2,8 @@ package uk.gov.moj.cpp.notification.notify.event.processor.client;
 
 import uk.gov.justice.services.common.configuration.GlobalValue;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class MicrosoftOffice365NotifyClientProvider {

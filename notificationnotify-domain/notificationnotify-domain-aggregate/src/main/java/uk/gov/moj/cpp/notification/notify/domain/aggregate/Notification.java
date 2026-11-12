@@ -3,7 +3,7 @@ package uk.gov.moj.cpp.notification.notify.domain.aggregate;
 import static java.lang.String.format;
 import static java.util.stream.Stream.empty;
 import static java.util.stream.Stream.of;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static uk.gov.justice.domain.aggregate.matcher.EventSwitcher.doNothing;
 import static uk.gov.justice.domain.aggregate.matcher.EventSwitcher.match;
 import static uk.gov.justice.domain.aggregate.matcher.EventSwitcher.otherwiseDoNothing;

@@ -32,8 +32,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import javax.json.JsonObject;
-import javax.mail.MessagingException;
+import jakarta.json.JsonObject;
+import jakarta.mail.MessagingException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +43,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
 
 @ExtendWith(MockitoExtension.class)
 public class PocaEmailsTaskTest {
@@ -76,6 +77,9 @@ public class PocaEmailsTaskTest {
 
     @Mock
     private NotificationNotifyCommandSender notificationNotifyCommandSender;
+
+    @Mock
+    private Logger logger;
 
     @BeforeEach
     public void setup() {

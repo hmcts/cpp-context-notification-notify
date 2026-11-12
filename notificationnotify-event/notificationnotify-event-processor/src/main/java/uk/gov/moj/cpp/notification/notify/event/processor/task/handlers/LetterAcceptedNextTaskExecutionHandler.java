@@ -8,7 +8,7 @@ import uk.gov.moj.cpp.jobstore.api.task.ExecutionInfo;
 import uk.gov.moj.cpp.jobstore.api.task.ExecutionStatus;
 import uk.gov.moj.cpp.notification.notify.event.processor.task.domain.ExternalIdentifierJobState;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class LetterAcceptedNextTaskExecutionHandler implements LetterAcceptedHandler {
 

@@ -1,6 +1,6 @@
 package uk.gov.moj.notification.notify.it.stub;
 
-import static javax.ws.rs.core.Response.Status;
+import static jakarta.ws.rs.core.Response.Status;
 
 public interface NotifyResponseBuilder {
 

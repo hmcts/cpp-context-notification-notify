@@ -4,7 +4,7 @@ import static java.lang.Integer.parseInt;
 
 import uk.gov.moj.cpp.notification.notify.event.processor.task.domain.MailServerCredentials;
 
-import javax.mail.MessagingException;
+import jakarta.mail.MessagingException;
 
 public class EmailHandlerFactory {
     @SuppressWarnings("squid:S2095")

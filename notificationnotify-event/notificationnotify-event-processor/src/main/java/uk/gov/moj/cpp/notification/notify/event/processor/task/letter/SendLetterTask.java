@@ -20,9 +20,9 @@ import uk.gov.moj.cpp.notification.notify.event.processor.task.domain.SendLetter
 import uk.gov.moj.cpp.notification.notify.event.processor.task.processors.SenderErrorResponseProcessor;
 import uk.gov.moj.cpp.notification.notify.event.processor.task.processors.SuccessfulResponseProcessor;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.json.JsonObject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.json.JsonObject;
 
 import org.slf4j.Logger;
 

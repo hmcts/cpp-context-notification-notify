@@ -2,10 +2,10 @@ package uk.gov.moj.notification.notify.it.stub;
 
 import static uk.gov.justice.services.messaging.JsonObjects.createArrayBuilder;
 import static uk.gov.justice.services.messaging.JsonObjects.createObjectBuilder;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 
-import javax.json.JsonObjectBuilder;
-import javax.ws.rs.core.Response.Status;
+import jakarta.json.JsonObjectBuilder;
+import jakarta.ws.rs.core.Response.Status;
 
 public class ErrorResponseBuilder implements NotifyResponseBuilder {
 

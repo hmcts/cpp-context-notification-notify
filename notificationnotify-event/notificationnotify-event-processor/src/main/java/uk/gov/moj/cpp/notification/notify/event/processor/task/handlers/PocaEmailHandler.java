@@ -10,14 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import javax.mail.Address;
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Part;
-import javax.mail.UIDFolder;
-import javax.mail.internet.MimeBodyPart;
+import jakarta.mail.Address;
+import jakarta.mail.Folder;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.Part;
+import jakarta.mail.UIDFolder;
+import jakarta.mail.internet.MimeBodyPart;
 
 import org.slf4j.Logger;
 

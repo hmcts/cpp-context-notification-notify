@@ -12,7 +12,7 @@ import static uk.gov.moj.cpp.notification.notify.event.processor.metrics.Metrics
 
 import uk.gov.moj.cpp.notification.notify.event.processor.task.Task;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import com.codahale.metrics.MetricRegistry;
 

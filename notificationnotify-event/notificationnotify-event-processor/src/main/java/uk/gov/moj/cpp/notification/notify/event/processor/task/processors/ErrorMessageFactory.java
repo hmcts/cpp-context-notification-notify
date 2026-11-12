@@ -1,9 +1,9 @@
 package uk.gov.moj.cpp.notification.notify.event.processor.task.processors;
 
 import static java.lang.String.format;
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import uk.gov.moj.cpp.notification.notify.event.processor.response.ErrorResponse;
 import uk.gov.moj.cpp.notification.notify.event.processor.retry.RetryService;
 import uk.gov.moj.cpp.notification.notify.event.processor.task.Task;

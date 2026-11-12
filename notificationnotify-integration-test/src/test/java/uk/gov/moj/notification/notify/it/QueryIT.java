@@ -7,12 +7,11 @@ import static com.jayway.jsonpath.matchers.JsonPathMatchers.isJson;
 import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.Matchers.hasEntry;
 import static uk.gov.justice.services.messaging.JsonObjects.createObjectBuilder;
-import static javax.ws.rs.core.Response.Status.ACCEPTED;
-import static javax.ws.rs.core.Response.Status.OK;
+import static jakarta.ws.rs.core.Response.Status.ACCEPTED;
+import static jakarta.ws.rs.core.Response.Status.OK;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -53,9 +52,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
 
 import io.restassured.path.json.JsonPath;
 import org.junit.jupiter.api.BeforeAll;
@@ -105,15 +104,25 @@ public class QueryIT {
     @Test
     public void shouldRetrievePreviouslySentNotificationByNotificationId() {
         final UUID notificationId = randomUUID();
+        final UUID govNotifyNotificationId = randomUUID();
+
+        stubGovNotifySuccessClientWithPersonalisationWithoutMaterialUrl(notificationId, govNotifyNotificationId);
+        stubGovNotifyCheckStatusWithStatusDelivered(notificationId, govNotifyNotificationId);
 
         sendAndAssertEmailNotification(notificationId);
 
         final String url = QUERY_NOTIFICATION_URL + "notification/" + notificationId.toString();
 
+        // Poll until the notification reaches the deterministic terminal SENT status. Asserting the
+        // intermediate QUEUED status here is racy: on faster stacks the async send completes before
+        // the query lands.
         pollForResponseAfterSentNotificationProcessed(
                 url,
                 NOTIFICATION_BY_ID_CONTENT_TYPE,
-                containsString(notificationId.toString()));
+                allOf(
+                        isJson(),
+                        hasJsonPath("$.notificationId", equalTo(notificationId.toString())),
+                        hasJsonPath("$.status", equalTo(STATUS_SENT))));
 
         final Response queryResponse = restClient.query(url, NOTIFICATION_BY_ID_CONTENT_TYPE, headers);
 
@@ -123,7 +132,7 @@ public class QueryIT {
         assertThat(responsePayload.getString("notificationId"), equalTo(notificationId.toString()));
         assertThat(responsePayload.getString("dateCreated"), is(notNullValue()));
         assertThat(responsePayload.getString("lastUpdated"), is(notNullValue()));
-        assertThat(responsePayload.getString("status"), is(STATUS_QUEUED));
+        assertThat(responsePayload.getString("status"), is(STATUS_SENT));
     }
 
     @Test

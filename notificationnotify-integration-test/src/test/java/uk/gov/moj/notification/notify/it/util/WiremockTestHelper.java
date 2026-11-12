@@ -7,7 +7,7 @@ import static uk.gov.justice.services.test.utils.core.matchers.ResponseStatusMat
 
 import uk.gov.justice.services.test.utils.core.http.RequestParams;
 
-import javax.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.Response.Status;
 
 
 /**

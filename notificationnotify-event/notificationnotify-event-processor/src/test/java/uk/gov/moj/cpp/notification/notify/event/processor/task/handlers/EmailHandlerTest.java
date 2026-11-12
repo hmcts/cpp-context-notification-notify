@@ -1,7 +1,7 @@
 package uk.gov.moj.cpp.notification.notify.event.processor.task.handlers;
 
 import static java.util.UUID.randomUUID;
-import static javax.mail.Flags.Flag.DELETED;
+import static jakarta.mail.Flags.Flag.DELETED;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -13,14 +13,14 @@ import uk.gov.moj.cpp.notification.notify.event.processor.task.domain.EmailDetai
 import java.io.IOException;
 import java.util.UUID;
 
-import javax.mail.Flags;
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Part;
-import javax.mail.Store;
-import javax.mail.internet.MimeBodyPart;
+import jakarta.mail.Flags;
+import jakarta.mail.Folder;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.Part;
+import jakarta.mail.Store;
+import jakarta.mail.internet.MimeBodyPart;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
