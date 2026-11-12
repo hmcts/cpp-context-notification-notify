@@ -1,6 +1,6 @@
 # notification-notify — J17 → J25 Behavioural Parity Checklist
 
-Companion to *Parity Testing Java17 → Java25* (Confluence CTP/1990371020). Full write-up: `/J25-PARITY-FINDINGS.md`.
+Companion to *Parity Testing Java17 → Java25* (Confluence CTP/1990371020). Full write-up: `J25-PARITY-FINDINGS.md`.
 Jira: PEG-3535 (under PEG-3377). Scanned `main` (spp 17.104.0) vs `team/25.104.x` (spp M10).
 
 ## Applies

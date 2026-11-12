@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import jakarta.ws.rs.client.Client;
@@ -35,11 +36,7 @@ public class JaxRsClientProviderTest {
 
         // The client is closed; invoking it again must fail (JAX-RS mandates IllegalStateException
         // once a Client is closed).
-        try {
-            client.target("http://localhost");
-            fail("Expected the closed client to reject further use");
-        } catch (final IllegalStateException expected) {
-            // expected once the client is closed
-        }
+
+        assertThrows(IllegalStateException.class, () -> client.target("http://localhost"));
     }
 }

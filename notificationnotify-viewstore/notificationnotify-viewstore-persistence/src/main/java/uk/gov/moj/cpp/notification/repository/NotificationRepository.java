@@ -30,7 +30,7 @@ public class NotificationRepository {
     public static final String MATERIAL_URL = "materialUrl";
 
     @PersistenceContext(unitName = "notificationnotify")
-    EntityManager entityManager;
+    private EntityManager entityManager;
 
     public Notification save(final Notification notification) {
         return entityManager.merge(notification);
