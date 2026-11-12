@@ -13,7 +13,7 @@ import uk.gov.moj.cpp.notification.notify.event.processor.task.domain.ExternalId
 import uk.gov.moj.cpp.notification.notify.event.processor.task.domain.ExternalIdentifierJobState;
 import uk.gov.moj.cpp.notification.notify.event.processor.task.domain.NotificationJobState;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class SuccessfulResponseProcessor {
 

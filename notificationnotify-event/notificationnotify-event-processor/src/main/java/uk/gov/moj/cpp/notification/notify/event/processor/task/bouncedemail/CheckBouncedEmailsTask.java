@@ -20,9 +20,9 @@ import uk.gov.moj.cpp.notification.notify.event.processor.task.handlers.EmailHan
 
 import java.io.IOException;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.mail.MessagingException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.mail.MessagingException;
 
 import org.slf4j.Logger;
 

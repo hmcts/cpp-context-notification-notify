@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import uk.gov.justice.services.messaging.JsonObjects;
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import org.jose4j.base64url.Base64;
 import org.junit.jupiter.api.BeforeEach;

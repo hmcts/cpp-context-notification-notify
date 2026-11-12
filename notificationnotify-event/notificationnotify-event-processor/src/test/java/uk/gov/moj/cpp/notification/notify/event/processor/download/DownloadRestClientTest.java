@@ -2,7 +2,7 @@ package uk.gov.moj.cpp.notification.notify.event.processor.download;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -14,10 +14,10 @@ import uk.gov.moj.cpp.systemusers.ServiceContextSystemUserProvider;
 
 import java.util.UUID;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +35,7 @@ public class DownloadRestClientTest {
     private MediaTypeSelector mediaTypeSelector;
 
     @Mock
-    private ClientCreator clientCreator;
+    private JaxRsClientProvider jaxRsClientProvider;
 
     @InjectMocks
     private DownloadRestClient downloadRestClient;
@@ -51,7 +51,7 @@ public class DownloadRestClientTest {
 
         final String documentUrl = "http://localhost:8080/document";
 
-        when(clientCreator.createNewClient()).thenReturn(client);
+        when(jaxRsClientProvider.getClient()).thenReturn(client);
         when(mediaTypeSelector.mediaTypeFor(documentUrl)).thenReturn(APPLICATION_OCTET_STREAM);
         when(serviceContextSystemUserProvider.getContextSystemUserId()).thenReturn(of(systemUserId));
 

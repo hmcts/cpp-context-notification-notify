@@ -27,7 +27,7 @@ import uk.gov.moj.cpp.notification.repository.NotificationRepository;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import javax.json.JsonValue;
+import jakarta.json.JsonValue;
 
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;

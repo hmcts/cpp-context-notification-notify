@@ -12,7 +12,7 @@ import uk.gov.moj.cpp.notification.notify.event.processor.task.domain.Notificati
 import uk.gov.moj.cpp.notification.notify.event.processor.task.domain.NotificationJobState;
 import uk.gov.moj.cpp.notification.notify.event.processor.util.PersonalisationExtractor;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 

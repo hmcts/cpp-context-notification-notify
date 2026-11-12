@@ -26,8 +26,8 @@ import uk.gov.moj.cpp.notification.notify.event.processor.task.handlers.EmailHan
 import java.io.IOException;
 import java.time.ZonedDateTime;
 
-import javax.json.JsonObject;
-import javax.mail.MessagingException;
+import jakarta.json.JsonObject;
+import jakarta.mail.MessagingException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

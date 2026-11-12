@@ -9,7 +9,7 @@ import static uk.gov.moj.cpp.notification.entity.NotificationType.EMAIL;
 import static uk.gov.moj.cpp.notification.entity.NotificationType.LETTER;
 
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.test.utils.persistence.BaseTransactionalJunit4Test;
+import uk.gov.justice.services.test.utils.persistence.HibernateTestEntityManagerProvider;
 import uk.gov.moj.cpp.notification.entity.Notification;
 import uk.gov.moj.cpp.notification.factory.NotificationFactory;
 
@@ -18,20 +18,28 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.inject.Inject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+class NotificationRepositoryTest {
 
-@RunWith(CdiTestRunner.class)
-public class NotificationRepositoryTest extends BaseTransactionalJunit4Test {
+    private static final String PERSISTENCE_UNIT = "notificationnotify-test-persistence-unit";
 
-    @Inject
+    @RegisterExtension
+    static HibernateTestEntityManagerProvider hibernateTestEntityManagerProvider =
+            new HibernateTestEntityManagerProvider(PERSISTENCE_UNIT);
+
     private NotificationRepository notificationRepository;
 
+    @BeforeEach
+    void openEntityManagerAndCreateRepository() {
+        notificationRepository = new NotificationRepository();
+        hibernateTestEntityManagerProvider.injectEntityManagerInto(notificationRepository);
+    }
+
     @Test
-    public void shouldGetEmailWithLinkNotificationById() {
+    void shouldGetEmailWithLinkNotificationById() {
 
         final UUID notificationId = randomUUID();
         final ZonedDateTime timestamp = new UtcClock().now();
@@ -45,7 +53,7 @@ public class NotificationRepositoryTest extends BaseTransactionalJunit4Test {
 
         notificationRepository.save(notification);
 
-        Notification result = notificationRepository.findBy(notificationId);
+        final Notification result = notificationRepository.findBy(notificationId);
 
         assertThat(result, is(notNullValue()));
 
@@ -61,7 +69,7 @@ public class NotificationRepositoryTest extends BaseTransactionalJunit4Test {
     }
 
     @Test
-    public void shouldGetEmailWithNoLinkNotificationById() {
+    void shouldGetEmailWithNoLinkNotificationById() {
 
         final UUID notificationId = randomUUID();
         final ZonedDateTime timestamp = new UtcClock().now();
@@ -75,7 +83,7 @@ public class NotificationRepositoryTest extends BaseTransactionalJunit4Test {
 
         notificationRepository.save(notification);
 
-        Notification result = notificationRepository.findBy(notificationId);
+        final Notification result = notificationRepository.findBy(notificationId);
 
         assertThat(result, is(notNullValue()));
 
@@ -91,18 +99,18 @@ public class NotificationRepositoryTest extends BaseTransactionalJunit4Test {
     }
 
     @Test
-    public void shouldGetLetterNotificationById() {
+    void shouldGetLetterNotificationById() {
 
         final UUID notificationId = randomUUID();
         final ZonedDateTime timestamp = new UtcClock().now();
         final String status = "queued";
-        final String letterUrl= "http://localhost";
+        final String letterUrl = "http://localhost";
 
         final Notification notification = createLetterNotificationWith(notificationId, status, letterUrl, timestamp, timestamp);
 
         notificationRepository.save(notification);
 
-        Notification result = notificationRepository.findBy(notificationId);
+        final Notification result = notificationRepository.findBy(notificationId);
 
         assertThat(result, is(notNullValue()));
 
@@ -115,7 +123,7 @@ public class NotificationRepositoryTest extends BaseTransactionalJunit4Test {
     }
 
     @Test
-    public void shouldGetEmailNotificationByQueryParams() {
+    void shouldGetEmailNotificationByQueryParams() {
         final UUID notificationId = randomUUID();
         final UUID notificationIdB = randomUUID();
         final UUID notificationIdC = randomUUID();
@@ -146,7 +154,7 @@ public class NotificationRepositoryTest extends BaseTransactionalJunit4Test {
     }
 
     @Test
-    public void shouldGetLetterNotificationByQueryParams() {
+    void shouldGetLetterNotificationByQueryParams() {
         final UUID notificationId = randomUUID();
         final UUID notificationIdB = randomUUID();
         final UUID notificationIdC = randomUUID();
@@ -175,7 +183,7 @@ public class NotificationRepositoryTest extends BaseTransactionalJunit4Test {
     }
 
     @Test
-    public void shouldGetLetterNotificationByLetterUrlUsingQueryParams() {
+    void shouldGetLetterNotificationByLetterUrlUsingQueryParams() {
         final UUID notificationId = randomUUID();
         final UUID notificationIdB = randomUUID();
         final UUID notificationIdC = randomUUID();
@@ -218,12 +226,10 @@ public class NotificationRepositoryTest extends BaseTransactionalJunit4Test {
     }
 
     private Notification createLetterNotificationWith(final UUID notificationId,
-                                                final String status,
-                                                final String letterUrl,
-                                                final ZonedDateTime dateCreated,
-                                                final ZonedDateTime lastUpdated) {
+                                                      final String status,
+                                                      final String letterUrl,
+                                                      final ZonedDateTime dateCreated,
+                                                      final ZonedDateTime lastUpdated) {
         return new NotificationFactory().createLetterNotification(notificationId, status, letterUrl, dateCreated, lastUpdated);
-
     }
-
 }

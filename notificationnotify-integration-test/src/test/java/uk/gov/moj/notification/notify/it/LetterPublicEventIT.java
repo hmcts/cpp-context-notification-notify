@@ -5,7 +5,7 @@ import static java.lang.String.format;
 import static java.util.Optional.empty;
 import static java.util.UUID.randomUUID;
 import static uk.gov.justice.services.messaging.JsonObjects.createObjectBuilder;
-import static javax.ws.rs.core.Response.Status.ACCEPTED;
+import static jakarta.ws.rs.core.Response.Status.ACCEPTED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -31,8 +31,8 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.Response;
 
 import io.restassured.path.json.JsonPath;
 import org.junit.jupiter.api.BeforeEach;

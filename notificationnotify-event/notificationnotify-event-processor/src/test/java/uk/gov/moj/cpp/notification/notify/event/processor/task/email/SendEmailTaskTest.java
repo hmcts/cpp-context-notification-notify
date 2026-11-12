@@ -22,7 +22,7 @@ import uk.gov.moj.cpp.notification.notify.event.processor.task.processors.Succes
 import java.util.List;
 import java.util.Optional;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;

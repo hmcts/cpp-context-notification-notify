@@ -27,8 +27,9 @@ ADD ${mavenArtifactBaseUrl}/uk/gov/justice/event-store/aggregate-snapshot-reposi
 ADD ${mavenArtifactBaseUrl}/uk/gov/justice/event-store/event-buffer-liquibase/${eventstore_version}/event-buffer-liquibase-${eventstore_version}.jar  /tmp/liquibase/event-buffer-liquibase.jar
 ADD ${mavenArtifactBaseUrl}/uk/gov/justice/event-store/event-tracking-liquibase/${eventstore_version}/event-tracking-liquibase-${eventstore_version}.jar  /tmp/liquibase/event-tracking-liquibase.jar
 ADD ${mavenArtifactBaseUrl}/uk/gov/justice/services/framework-system-liquibase/${framework_version}/framework-system-liquibase-${framework_version}.jar  /tmp/liquibase/framework-system-liquibase.jar
-ADD ${mavenArtifactBaseUrl}/uk/gov/justice/services/file-service-liquibase/${framework_libraries_version}/file-service-liquibase-${framework_libraries_version}.jar  /tmp/liquibase/file-service-liquibase.jar
 ADD ${mavenArtifactBaseUrl}/uk/gov/justice/services/jobstore-liquibase/${framework_libraries_version}/jobstore-liquibase-${framework_libraries_version}.jar  /tmp/liquibase/jobstore-liquibase.jar
+#No need of running fileservice liquibase, it's taken care through different mechanism and it gets setup through that process
+
 RUN chmod -R 755 /tmp/liquibase
 COPY scripts/liquibase.sh /tmp/liquibase/liquibase.sh
 RUN chown ${wildfly_user}:${wildfly_user} /tmp/liquibase/liquibase.sh && chmod 755 /tmp/liquibase/liquibase.sh

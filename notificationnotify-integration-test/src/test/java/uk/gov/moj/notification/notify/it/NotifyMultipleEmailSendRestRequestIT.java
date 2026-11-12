@@ -5,7 +5,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.reset;
 import static com.jayway.jsonassert.JsonAssert.with;
 import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
-import static javax.ws.rs.core.Response.Status.ACCEPTED;
+import static jakarta.ws.rs.core.Response.Status.ACCEPTED;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;

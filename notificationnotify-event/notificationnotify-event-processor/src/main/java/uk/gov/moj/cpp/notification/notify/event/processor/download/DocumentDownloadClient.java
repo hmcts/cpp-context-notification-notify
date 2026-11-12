@@ -1,7 +1,7 @@
 package uk.gov.moj.cpp.notification.notify.event.processor.download;
 
 import static java.lang.String.format;
-import static javax.ws.rs.core.HttpHeaders.CONTENT_LOCATION;
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_LOCATION;
 import static org.apache.commons.io.IOUtils.toByteArray;
 import static org.apache.http.HttpStatus.SC_OK;
 
@@ -12,9 +12,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;

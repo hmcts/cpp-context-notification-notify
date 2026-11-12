@@ -25,9 +25,9 @@ import uk.gov.moj.cpp.notification.notify.event.processor.task.domain.SendLetter
 
 import java.util.UUID;
 
-import javax.inject.Inject;
-import javax.interceptor.Interceptor;
-import javax.json.JsonObject;
+import jakarta.inject.Inject;
+import jakarta.interceptor.Interceptor;
+import jakarta.json.JsonObject;
 
 import org.slf4j.Logger;
 
